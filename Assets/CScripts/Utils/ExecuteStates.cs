@@ -1,7 +1,7 @@
 public struct ExecuteStates
 {
-    public string Name;
     public string Method;
+    public bool Static;
     public int Count;
     public ExecuteState CsInvoke;
     public ExecuteState JsInvoke;

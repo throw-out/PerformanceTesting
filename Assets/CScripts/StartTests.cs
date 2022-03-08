@@ -84,8 +84,8 @@ public class StartTests : MonoBehaviour
             builder.AppendLine();
             builder.AppendFormat(
                        "| {0}       | {1}       | {2}       | {3}       | {4}       | {5}       | {6}       | {7}       | {8}       |",
-                state.Name,
                 state.Method,
+                state.Static,
                 state.Count,
                 FormatTime(state.CsInvoke.Time),
                 FormatTime(state.JsInvoke.Time),
@@ -141,8 +141,8 @@ public class StartTests : MonoBehaviour
 
         return new ExecuteStates()
         {
-            Name = execute.GetType().FullName,
             Method = execute.Method,
+            Static = execute.Static,
             Count = count,
             CsInvoke = new ExecuteState()
             {

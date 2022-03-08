@@ -10,7 +10,8 @@ using XLua;
 [Tests]
 public class Example1 : IExecute
 {
-    public string Method => "static void Payload();";
+    public bool Static => true;
+    public string Method => "void Payload();";
 
     public object RunCS(int count)
     {
