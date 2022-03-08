@@ -19,7 +19,7 @@ public static class MarkdownUtil
             scriptPath = UnityEditor.AssetDatabase.GetAllAssetPaths().FirstOrDefault(p => p.EndsWith(scriptName) && UnityEditor.AssetDatabase.GetMainAssetTypeAtPath(p) == typeof(UnityEditor.MonoScript));
 #endif
 
-            return scriptPath != null ? $"![./pic/code_file.png](./{scriptPath})" : "!(./pic/code_file.png)";
+            return scriptPath != null ? $"!(./pic/code_file.png)" : "!(./pic/code_file.png)";
         };
 
 
