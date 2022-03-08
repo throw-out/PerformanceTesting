@@ -25,7 +25,7 @@ public class Example5 : IExecute
 var Example = require('csharp').Example5;
 var result = 0;
 for(let i = 0; i < {0}; i++){{
-    result += Example.Payload(1, i + 1, i + 2);
+    result += Example.Payload(i, i + 1, i + 2);
 }}
 
 result;
@@ -39,7 +39,7 @@ result;
 local Example = CS.Example5;
 local result = 0;
 for i = 0,{0} do
-    result = result + Example.Payload(1, i + 1, i + 2);
+    result = result + Example.Payload(i, i + 1, i + 2);
 end
 
 return result;
