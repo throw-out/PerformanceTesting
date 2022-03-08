@@ -9,24 +9,48 @@ public static class MarkdownUtil
     public static string Generate(List<ExecuteStates> states)
     {
         StringBuilder builder = new StringBuilder();
-        builder.Append("\n# System Environment");
+        builder.AppendLine();
+        builder.Append("# System Environment");
         builder.Append(GetEnvironment());
 
-        builder.Append("\n# All Data");
+        builder.AppendLine();
+        builder.Append("# Version");
+        builder.Append(GetVersion());
+
+        builder.AppendLine();
+        builder.Append("# All Data");
         builder.Append(FromatToTable(states));
 
+        return builder.ToString();
+    }
+    public static string GetVersion()
+    {
+        StringBuilder builder = new StringBuilder();
+        builder.AppendLine();
+        builder.AppendFormat("| :----           | :----:            |");
+        builder.AppendLine();
+        builder.AppendFormat("| Unity           | {0}               |", Application.unityVersion);
+        builder.AppendLine();
+        builder.AppendFormat("| puerts          | {0}               |", Puerts.PuertsDLL.GetLibVersion());
+        builder.AppendLine();
+        builder.AppendFormat("| xLua            | {0}               |", XLua.LuaDLL.Lua.xlua_get_lib_version());
         return builder.ToString();
     }
     public static string GetEnvironment()
     {
         StringBuilder builder = new StringBuilder();
-        builder.AppendFormat("\n* System: \t{0}", SystemInfo.operatingSystem);          //操作系统版本
-        builder.AppendFormat("\n* Memory: \t{0}MB", SystemInfo.systemMemorySize);       //系统内存大小
-        builder.AppendFormat("\n* CPU: \t{0}", SystemInfo.processorType);               //处理器名称
-        builder.AppendFormat("\n* CPU-Count: \t{0}", SystemInfo.processorCount);        //处理器数量
-        builder.AppendFormat("\n* CPU-Frequency: \t{0}", SystemInfo.processorFrequency);//处理器频率
-        builder.AppendFormat("\n* Graphics: \t{0}", SystemInfo.graphicsDeviceName);     //显卡名称
-        builder.AppendFormat("\n* Graphics-Type: \t{0}", SystemInfo.graphicsDeviceType);//显卡类型
+        builder.AppendLine();
+        builder.AppendFormat("| :----           | :----:            |");
+        builder.AppendLine();
+        builder.AppendFormat("| System          | {0}               |", SystemInfo.operatingSystem);    //操作系统版本
+        builder.AppendLine();
+        builder.AppendFormat("| Memory          | {0}MB             |", SystemInfo.systemMemorySize);   //系统内存大小
+        builder.AppendLine();
+        builder.AppendFormat("| CPU             | {0}               |", SystemInfo.processorType);      //处理器名称
+        builder.AppendLine();
+        builder.AppendFormat("| CPU-Count       | {0}               |", SystemInfo.processorCount);     //处理器数量
+        builder.AppendLine();
+        builder.AppendFormat("| CPU-Frequency   | {0}               |", SystemInfo.processorFrequency); //处理器频率
         return builder.ToString();
     }
 
@@ -51,15 +75,15 @@ public static class MarkdownUtil
         StringBuilder builder = new StringBuilder();
 
         builder.AppendLine();
-        builder.Append("| File      | Method    |  Static   | Call      | csDuration(ms)    | jsDuration(ms)    | luaDuration(ms)   | csResult  | jsResult  | luaResult |");
+        builder.Append("| File      | Method    |  Static   | Call      | csharp(ms)| puerts(ms)| xLua(ms)  | csharpResult  | puertsResult  | xLuaResult    |");
         builder.AppendLine();
-        builder.Append("| :----:    | :----     |  :----    | :----:    | :----:    | :----:    | :----:    | :----:    | :----:    | :----:    |");
+        builder.Append("| :----:    | :----     |  :----    | :----:    | :----:    | :----:    | :----:    | :----:        | :----:        | :----:        |");
 
         foreach (var state in states)
         {
             builder.AppendLine();
             builder.AppendFormat(
-                       "| {0}       | {1}       | {2}       | {3}       | {4}       | {5}       | {6}       | {7}       | {8}       | {9}       |",
+                       "| {0}       | {1}       | {2}       | {3}       | {4}       | {5}       | {6}       | {7}           | {8}           | {9}           |",
                 FormatScriptPath(state.Type),
                 state.Method,
                 state.Static ? "√" : "×",

@@ -103,7 +103,7 @@ public class GUITests : MonoBehaviour
                     continue;
 
                 ExecuteState csInvoke = ExecuteUtil.InvokeCS(execute, count);
-                testingInfo.AppendFormat("\n{0} | method = {1}, count={2}, cs invoke = {3}",
+                testingInfo.AppendFormat("\n{0} | {1} | count={2}, run csharp = {3}",
                     execute.GetType().FullName,
                     execute.Method,
                     count,
@@ -113,7 +113,7 @@ public class GUITests : MonoBehaviour
                 yield return null;
 
                 ExecuteState jsInvoke = ExecuteUtil.InvokeJs(jsEnv, execute, count);
-                testingInfo.AppendFormat("\n{0} | method = {1}, count={2}, js invoke = {3}",
+                testingInfo.AppendFormat("\n{0} | {1} | count={2}, run puerts = {3}",
                     execute.GetType().FullName,
                     execute.Method,
                     count,
@@ -123,7 +123,7 @@ public class GUITests : MonoBehaviour
                 yield return null;
 
                 ExecuteState luaInvoke = ExecuteUtil.InvokeLua(luaEnv, execute, count);
-                testingInfo.AppendFormat("\n{0} | method = {1}, count={2}, lua invoke = {3}",
+                testingInfo.AppendFormat("\n{0} | {1} | count={2}, run xLua = {3}",
                     execute.GetType().FullName,
                     execute.Method,
                     count,
@@ -149,6 +149,7 @@ public class GUITests : MonoBehaviour
         File.WriteAllText(statesFilePath, MarkdownUtil.Generate(statesList));
 
         testingInfo.AppendFormat("\n\ntest completed! total duration = {0}ms", totalDuration.End().ToString("f1"));
+        testingInfo.AppendFormat("\n\nstates file write to: {0}", statesFilePath);
         Render();
     }
 }
