@@ -70,9 +70,9 @@ public class StartTests : MonoBehaviour
     string FromatToMarkdown(List<ExecuteStates> states)
     {
         StringBuilder builder = new StringBuilder();
-        builder.Append("|  Method   | Call      | csTime    | jsTime    | luaTime   | csResult  | jsResult  | luaResult |");
+        builder.Append("| Example   |  Method   | Call      | csTime    | jsTime    | luaTime   | csResult  | jsResult  | luaResult |");
         builder.AppendLine();
-        builder.Append("|  :----    | :----:    | :----:    | :----:    | :----:    | :----:    | :----:    | :----:    |");
+        builder.Append("| :----     |  :----    | :----:    | :----:    | :----:    | :----:    | :----:    | :----:    | :----:    |");
 
         Func<double, string> FormatTime =
             (time) => time >= 0 ? (time.ToString("f1") + "ms") : "`fail`";
@@ -83,21 +83,22 @@ public class StartTests : MonoBehaviour
         {
             builder.AppendLine();
             builder.AppendFormat(
-                       "| {0}       | {1}       | {2}       | {3}       | {4}       | {5}       | {6}       | {7}       |",
-                state.name,
-                state.num,
-                FormatTime(state.csState.time),
-                FormatTime(state.jsState.time),
-                FormatTime(state.luaState.time),
-                FormatResult(state.csState.result),
-                FormatResult(state.jsState.result),
-                FormatResult(state.luaState.result)
+                       "| {0}       | {1}       | {2}       | {3}       | {4}       | {5}       | {6}       | {7}       | {8}       |",
+                state.Name,
+                state.Method,
+                state.Count,
+                FormatTime(state.CsInvoke.Time),
+                FormatTime(state.JsInvoke.Time),
+                FormatTime(state.LuaInvoke.Time),
+                FormatResult(state.CsInvoke.Result),
+                FormatResult(state.JsInvoke.Result),
+                FormatResult(state.LuaInvoke.Result)
             );
         }
 
         return builder.ToString();
     }
-    ExecuteStates Invoke(IExecute execute, int num)
+    ExecuteStates Invoke(IExecute execute, int count)
     {
         double csTime, jsTime, luaTime;
         object csResult, jsResult, luaResult;
@@ -105,7 +106,7 @@ public class StartTests : MonoBehaviour
         var timer = new Timer();
         try
         {
-            csResult = execute.RunCS(num);
+            csResult = execute.RunCS(count);
             csTime = timer.End();
         }
         catch (Exception)
@@ -117,7 +118,7 @@ public class StartTests : MonoBehaviour
         timer = new Timer();
         try
         {
-            jsResult = execute.RunJS(jsEnv, num);
+            jsResult = execute.RunJS(jsEnv, count);
             jsTime = timer.End();
         }
         catch (Exception)
@@ -129,7 +130,7 @@ public class StartTests : MonoBehaviour
         timer = new Timer();
         try
         {
-            luaResult = execute.RunLua(luaEnv, num);
+            luaResult = execute.RunLua(luaEnv, count);
             luaTime = timer.End();
         }
         catch (Exception)
@@ -140,22 +141,23 @@ public class StartTests : MonoBehaviour
 
         return new ExecuteStates()
         {
-            name = execute.Name,
-            num = num,
-            csState = new ExecuteState()
+            Name = execute.GetType().FullName,
+            Method = execute.Method,
+            Count = count,
+            CsInvoke = new ExecuteState()
             {
-                time = csTime,
-                result = csResult
+                Time = csTime,
+                Result = csResult
             },
-            jsState = new ExecuteState()
+            JsInvoke = new ExecuteState()
             {
-                time = jsTime,
-                result = jsResult
+                Time = jsTime,
+                Result = jsResult
             },
-            luaState = new ExecuteState()
+            LuaInvoke = new ExecuteState()
             {
-                time = luaTime,
-                result = luaResult
+                Time = luaTime,
+                Result = luaResult
             }
         };
     }

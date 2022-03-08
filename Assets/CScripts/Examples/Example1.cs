@@ -7,18 +7,18 @@ using XLua;
 [Tests]
 public class Example1 : IExecute
 {
-    public string Name => "static void Payload();";
+    public string Method => "static void Payload();";
 
-    public object RunCS(int num)
+    public object RunCS(int count)
     {
-        for (var i = 0; i < num; i++)
+        for (var i = 0; i < count; i++)
         {
             Example1.Payload();
         }
         return null;
     }
 
-    public object RunJS(JsEnv env, int num)
+    public object RunJS(JsEnv env, int count)
     {
         env.Eval(string.Format(
 @"
@@ -26,10 +26,10 @@ var Example = require('csharp').Example1;
 for(let i = 0; i < {0}; i++){{
     Example.Payload();
 }}
-", num));
+", count));
         return null;
     }
-    public object RunLua(LuaEnv env, int num)
+    public object RunLua(LuaEnv env, int count)
     {
         env.DoString(string.Format(
 @"
@@ -37,7 +37,7 @@ local Example = CS.Example1;
 for i = 1,{0} do
     Example.Payload();
 end
-", num));
+", count));
         return null;
     }
 

@@ -3,8 +3,8 @@ using XLua;
 
 public interface IExecute
 {
-    string Name { get; }
-    object RunCS(int num);
-    object RunJS(JsEnv env, int num);
-    object RunLua(LuaEnv env, int num);
+    string Method { get; }
+    object RunCS(int count);
+    object RunJS(JsEnv env, int count);
+    object RunLua(LuaEnv env, int count);
 }
