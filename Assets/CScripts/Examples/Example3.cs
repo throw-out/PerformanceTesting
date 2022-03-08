@@ -9,32 +9,35 @@ public class Example3 : IExecute
 {
     public string Name => "static void Payload(int param1);";
 
-    public void RunCS(int num)
+    public object RunCS(int num)
     {
         for (var i = 0; i < num; i++)
         {
-            Example3.Payload(1);
+            Example3.Payload(i);
         }
+        return null;
     }
-    public void RunJS(JsEnv env, int num)
+    public object RunJS(JsEnv env, int num)
     {
         env.Eval(string.Format(
 @"
 var Example = require('csharp').Example3;
 for(let i = 0; i < {0}; i++){{
-    Example.Payload(1);
+    Example.Payload(i);
 }}
 ", num));
+        return null;
     }
-    public void RunLua(LuaEnv env, int num)
+    public object RunLua(LuaEnv env, int num)
     {
         env.DoString(string.Format(
 @"
 local Example = CS.Example3;
 for i = 1,{0} do
-    Example.Payload(1);
+    Example.Payload(i);
 end
 ", num));
+        return null;
     }
 
     public static void Payload(int param1)

@@ -4,7 +4,7 @@ using XLua;
 public interface IExecute
 {
     string Name { get; }
-    void RunCS(int num);
-    void RunJS(JsEnv env, int num);
-    void RunLua(LuaEnv env, int num);
+    object RunCS(int num);
+    object RunJS(JsEnv env, int num);
+    object RunLua(LuaEnv env, int num);
 }

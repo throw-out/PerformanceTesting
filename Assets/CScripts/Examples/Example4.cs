@@ -2,48 +2,45 @@ using Puerts;
 using XLua;
 
 /// <summary>
-/// 实例方法调用, 无参, 无返回值
+/// 静态方法调用, 三个值类型参数, 无返回值
 /// </summary>
 [Tests]
-public class Example2 : IExecute
+public class Example4 : IExecute
 {
-    public string Name => "void Payload();";
+    public string Name => "static void Payload(int param1, int param2, float param3);";
 
     public object RunCS(int num)
     {
-        var Example = new Example2();
         for (var i = 0; i < num; i++)
         {
-            Example.Payload();
+            Example4.Payload(i, i + 1, i + 2f);
         }
         return null;
     }
-
     public object RunJS(JsEnv env, int num)
     {
         env.Eval(string.Format(
 @"
-var Example = new (require('csharp').Example2)();
+var Example = require('csharp').Example4;
 for(let i = 0; i < {0}; i++){{
-    Example.Payload();
+    Example.Payload(1, i + 1, i + 2);
 }}
 ", num));
         return null;
     }
-
     public object RunLua(LuaEnv env, int num)
     {
         env.DoString(string.Format(
 @"
-local Example = CS.Example2();
+local Example = CS.Example4;
 for i = 1,{0} do
-    Example.Payload();
+    Example.Payload(1, i + 1, i + 2);
 end
 ", num));
         return null;
     }
 
-    public void Payload()
+    public static void Payload(int param1, int param2, float param3)
     {
 
     }

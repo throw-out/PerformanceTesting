@@ -9,15 +9,16 @@ public class Example1 : IExecute
 {
     public string Name => "static void Payload();";
 
-    public void RunCS(int num)
+    public object RunCS(int num)
     {
         for (var i = 0; i < num; i++)
         {
             Example1.Payload();
         }
+        return null;
     }
 
-    public void RunJS(JsEnv env, int num)
+    public object RunJS(JsEnv env, int num)
     {
         env.Eval(string.Format(
 @"
@@ -26,8 +27,9 @@ for(let i = 0; i < {0}; i++){{
     Example.Payload();
 }}
 ", num));
+        return null;
     }
-    public void RunLua(LuaEnv env, int num)
+    public object RunLua(LuaEnv env, int num)
     {
         env.DoString(string.Format(
 @"
@@ -36,6 +38,7 @@ for i = 1,{0} do
     Example.Payload();
 end
 ", num));
+        return null;
     }
 
     public static void Payload()
