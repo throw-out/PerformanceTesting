@@ -87,7 +87,7 @@ public class StartTests : MonoBehaviour
 
         StringBuilder builder = new StringBuilder();
 
-        builder.Append("| File      | Example   |  Method   | Call      | csTime    | jsTime    | luaTime   | csResult  | jsResult  | luaResult |");
+        builder.Append("| File      | Method    |  Static   | Call      | csTime    | jsTime    | luaTime   | csResult  | jsResult  | luaResult |");
         builder.AppendLine();
         builder.Append("| :----:    | :----     |  :----    | :----:    | :----:    | :----:    | :----:    | :----:    | :----:    | :----:    |");
 
@@ -98,7 +98,7 @@ public class StartTests : MonoBehaviour
                        "| {0}       | {1}       | {2}       | {3}       | {4}       | {5}       | {6}       | {7}       | {8}       | {9}       |",
                 FormatScriptPath(state.Type),
                 state.Method,
-                state.Static,
+                state.Static ? "√" : "×",
                 state.Count,
                 FormatTime(state.CsInvoke.Time),
                 FormatTime(state.JsInvoke.Time),
