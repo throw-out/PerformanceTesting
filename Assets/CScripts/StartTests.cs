@@ -52,7 +52,7 @@ public class StartTests : MonoBehaviour
             }
         }
 
-        File.WriteAllText(Path.Combine(Application.dataPath, "../TestStates.md"), FromatToMarkdown(states));
+        File.WriteAllText(Path.Combine(Application.dataPath, "../STATES.md"), FromatToMarkdown(states));
 
         Debug.Log("Test Completed.");
     }
