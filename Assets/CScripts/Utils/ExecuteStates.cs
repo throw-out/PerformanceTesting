@@ -1,5 +1,8 @@
+using System;
+
 public struct ExecuteStates
 {
+    public Type Type;
     public string Method;
     public bool Static;
     public int Count;

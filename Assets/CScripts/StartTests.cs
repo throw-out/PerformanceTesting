@@ -84,7 +84,7 @@ public class StartTests : MonoBehaviour
             builder.AppendLine();
             builder.AppendFormat(
                        "| {0}       | {1}       | {2}       | {3}       | {4}       | {5}       | {6}       | {7}       | {8}       |",
-                state.Method,
+              "[#](./Assets/CScripts/Examples/Example1.cs)"+  state.Method,
                 state.Static,
                 state.Count,
                 FormatTime(state.CsInvoke.Time),
@@ -141,6 +141,7 @@ public class StartTests : MonoBehaviour
 
         return new ExecuteStates()
         {
+            Type = execute.GetType(),
             Method = execute.Method,
             Static = execute.Static,
             Count = count,
