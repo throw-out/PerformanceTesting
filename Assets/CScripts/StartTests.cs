@@ -69,22 +69,35 @@ public class StartTests : MonoBehaviour
 
     string FromatToMarkdown(List<ExecuteStates> states)
     {
-        StringBuilder builder = new StringBuilder();
-        builder.Append("| Example   |  Method   | Call      | csTime    | jsTime    | luaTime   | csResult  | jsResult  | luaResult |");
-        builder.AppendLine();
-        builder.Append("| :----     |  :----    | :----:    | :----:    | :----:    | :----:    | :----:    | :----:    | :----:    |");
-
         Func<double, string> FormatTime =
             (time) => time >= 0 ? (time.ToString("f1") + "ms") : "`fail`";
         Func<object, string> FormatResult =
             (result) => result != null ? result.ToString() : "`null`";
+        Func<Type, string> FormatScriptPath = (type) =>
+        {
+            string scriptPath;
+#if UNITY_EDITOR
+            string scriptName = $"/{type.Name}.cs";
+            scriptPath = UnityEditor.AssetDatabase.GetAllAssetPaths().FirstOrDefault(p => p.EndsWith(scriptName) && UnityEditor.AssetDatabase.GetMainAssetTypeAtPath(p) == typeof(UnityEditor.MonoScript));
+#endif
+
+            return scriptPath != null ? $"[#](./{scriptPath})" : "#";
+        };
+
+
+        StringBuilder builder = new StringBuilder();
+
+        builder.Append("| Example   |  Method   | Call      | csTime    | jsTime    | luaTime   | csResult  | jsResult  | luaResult |");
+        builder.AppendLine();
+        builder.Append("| :----     |  :----    | :----:    | :----:    | :----:    | :----:    | :----:    | :----:    | :----:    |");
 
         foreach (var state in states)
         {
             builder.AppendLine();
             builder.AppendFormat(
-                       "| {0}       | {1}       | {2}       | {3}       | {4}       | {5}       | {6}       | {7}       | {8}       |",
-              "[#](./Assets/CScripts/Examples/Example1.cs)"+  state.Method,
+                       "| {0}{1}    | {2}       | {3}       | {4}       | {5}       | {6}       | {7}       | {8}       | {9}       |",
+                FormatScriptPath(state.Type),
+                state.Method,
                 state.Static,
                 state.Count,
                 FormatTime(state.CsInvoke.Time),
