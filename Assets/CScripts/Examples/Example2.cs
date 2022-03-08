@@ -2,7 +2,10 @@ using Puerts;
 using XLua;
 
 /// <summary>
-/// 实例方法调用, 无参, 无返回值
+/// 实例方法调用
+/// 逻辑:   无
+/// 参数:   无
+/// 返回值: 无
 /// </summary>
 [Tests]
 public class Example2 : IExecute

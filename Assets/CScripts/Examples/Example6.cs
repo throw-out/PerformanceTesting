@@ -3,21 +3,21 @@ using XLua;
 
 /// <summary>
 /// 静态方法调用
-/// 逻辑:   参数求和并返回
-/// 参数:   三个值类型参数
+/// 逻辑:   内部求和并返回
+/// 参数:   无
 /// 返回值: 值类型
 /// </summary>
 [Tests]
-public class Example5 : IExecute
+public class Example6 : IExecute
 {
-    public string Method => "static float Payload(int param1, int param2, float param3);";
+    public string Method => "static float Payload();";
 
     public object RunCS(int count)
     {
         float result = 0f;
         for (var i = 0; i < count; i++)
         {
-            result += Example5.Payload(i, i + 1, i + 2f);
+            result += Example6.Payload();
         }
         return result;
     }
@@ -25,10 +25,10 @@ public class Example5 : IExecute
     {
         float result = env.Eval<float>(string.Format(
 @"
-var Example = require('csharp').Example5;
+var Example = require('csharp').Example6;
 var result = 0;
 for(let i = 0; i < {0}; i++){{
-    result += Example.Payload(i, i + 1, i + 2);
+    result += Example.Payload();
 }}
 
 result;
@@ -39,10 +39,10 @@ result;
     {
         object[] result = env.DoString(string.Format(
 @"
-local Example = CS.Example5;
+local Example = CS.Example6;
 local result = 0;
 for i = 0,{0} do
-    result = result + Example.Payload(i, i + 1, i + 2);
+    result = result + Example.Payload();
 end
 
 return result;
@@ -51,8 +51,8 @@ return result;
         return result != null && result.Length > 0 ? result[0] : null;
     }
 
-    public static float Payload(int param1, int param2, float param3)
+    public static float Payload()
     {
-        return param1 + param2 + param3;
+        return 1 + 2 + 3f;
     }
 }

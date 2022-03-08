@@ -2,7 +2,10 @@ using Puerts;
 using XLua;
 
 /// <summary>
-/// 静态方法调用, 三个值类型参数, 无返回值
+/// 静态方法调用
+/// 逻辑:   无
+/// 参数:   三个值类型参数
+/// 返回值: 无
 /// </summary>
 [Tests]
 public class Example4 : IExecute
