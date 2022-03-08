@@ -36,10 +36,8 @@ for(let i = 0; i < {0}; i++){{
         env.DoString(string.Format(
 @"
 local Example = CS.Example2();
-print(Example);
-
 for i = 1,{0} do
-    Example.Payload();
+    Example:Payload();
 end
 ", count));
         return null;
