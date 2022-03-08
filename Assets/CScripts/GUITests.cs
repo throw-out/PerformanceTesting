@@ -146,7 +146,7 @@ public class GUITests : MonoBehaviour
         }
 
         string statesFilePath = Path.Combine(Application.dataPath, "../STATES.md");
-        File.WriteAllText(statesFilePath, MarkdownUtil.FromatToTable(statesList));
+        File.WriteAllText(statesFilePath, MarkdownUtil.Generate(statesList));
 
         testingInfo.AppendFormat("\n\ntest completed! total duration = {0}ms", totalDuration.End().ToString("f1"));
         Render();
