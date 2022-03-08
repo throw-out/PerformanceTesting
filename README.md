@@ -6,3 +6,4 @@
  * 静态代码调用: [查看结果](./STATES_BY_STATIC_CODE.md)
  * IL2CPP调用: [查看结果](./STATES_BY_IL2CPP.md)   
  
+ ![测试](./pic/code_file.png);
