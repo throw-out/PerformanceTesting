@@ -81,21 +81,21 @@ public class StartTests : MonoBehaviour
             scriptPath = UnityEditor.AssetDatabase.GetAllAssetPaths().FirstOrDefault(p => p.EndsWith(scriptName) && UnityEditor.AssetDatabase.GetMainAssetTypeAtPath(p) == typeof(UnityEditor.MonoScript));
 #endif
 
-            return scriptPath != null ? $"[#](./{scriptPath})" : "#";
+            return scriptPath != null ? $"[File](./{scriptPath})" : "File";
         };
 
 
         StringBuilder builder = new StringBuilder();
 
-        builder.Append("| Example   |  Method   | Call      | csTime    | jsTime    | luaTime   | csResult  | jsResult  | luaResult |");
+        builder.Append("| File      | Example   |  Method   | Call      | csTime    | jsTime    | luaTime   | csResult  | jsResult  | luaResult |");
         builder.AppendLine();
-        builder.Append("| :----     |  :----    | :----:    | :----:    | :----:    | :----:    | :----:    | :----:    | :----:    |");
+        builder.Append("| :----:    | :----     |  :----    | :----:    | :----:    | :----:    | :----:    | :----:    | :----:    | :----:    |");
 
         foreach (var state in states)
         {
             builder.AppendLine();
             builder.AppendFormat(
-                       "| {0}{1}    | {2}       | {3}       | {4}       | {5}       | {6}       | {7}       | {8}       | {9}       |",
+                       "| {0}       | {1}       | {2}       | {3}       | {4}       | {5}       | {6}       | {7}       | {8}       | {9}       |",
                 FormatScriptPath(state.Type),
                 state.Method,
                 state.Static,
