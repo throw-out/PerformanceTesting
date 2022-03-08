@@ -81,7 +81,7 @@ public class StartTests : MonoBehaviour
             scriptPath = UnityEditor.AssetDatabase.GetAllAssetPaths().FirstOrDefault(p => p.EndsWith(scriptName) && UnityEditor.AssetDatabase.GetMainAssetTypeAtPath(p) == typeof(UnityEditor.MonoScript));
 #endif
 
-            return scriptPath != null ? $"[File](./{scriptPath})" : "File";
+            return scriptPath != null ? $"[{type.Name}](./{scriptPath})" : type.Name;
         };
 
 

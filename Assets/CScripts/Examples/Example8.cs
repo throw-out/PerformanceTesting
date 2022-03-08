@@ -45,7 +45,7 @@ result;
     }
     public object RunLua(LuaEnv env, int count)
     {
-        var result = env.DoString(string.Format(
+        object[] result = env.DoString(string.Format(
 @"
 local Example = CS.Example8;
 

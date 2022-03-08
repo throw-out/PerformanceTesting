@@ -28,7 +28,7 @@ public class Example7 : IExecute
     }
     public object RunJS(JsEnv env, int count)
     {
-         var result =  env.Eval<Quaternion>(string.Format(
+        var result = env.Eval<Quaternion>(string.Format(
 @"
 var Example = require('csharp').Example7;
 
@@ -46,7 +46,7 @@ result;
     }
     public object RunLua(LuaEnv env, int count)
     {
-        env.DoString(string.Format(
+        object[] result = env.DoString(string.Format(
 @"
 local Example = CS.Example7;
 
@@ -60,7 +60,7 @@ CS.UnityEngine.Object.Destroy(obj.gameObject);
 return result;
 ", count - 1));
 
-        return null;
+        return result != null && result.Length > 0 ? result[0] : null;
     }
 
     public static void Payload(Transform transform)
