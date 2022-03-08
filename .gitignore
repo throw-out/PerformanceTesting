@@ -3,4 +3,5 @@ Logs
 obj
 Packages
 Temp
+*.sln
 *.csproj
