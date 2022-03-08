@@ -8,7 +8,7 @@ public static class MarkdownUtil
     public static string FromatToTable(List<ExecuteStates> states)
     {
         Func<double, string> FormatDuration =
-            (duration) => duration >= 0 ? (duration.ToString("f1") + "ms") : "`fail`";
+            (duration) => duration >= 0 ? duration.ToString("f1") : "`fail`";
         Func<object, string> FormatResult =
             (result) => result != null ? result.ToString() : "`null`";
         Func<Type, string> FormatScriptPath = (type) =>
@@ -25,7 +25,7 @@ public static class MarkdownUtil
 
         StringBuilder builder = new StringBuilder();
 
-        builder.Append("| File      | Method    |  Static   | Call      | csTime    | jsTime    | luaTime   | csResult  | jsResult  | luaResult |");
+        builder.Append("| File      | Method    |  Static   | Call      | csDuration(ms)    | jsDuration(ms)    | luaDuration(ms)   | csResult  | jsResult  | luaResult |");
         builder.AppendLine();
         builder.Append("| :----:    | :----     |  :----    | :----:    | :----:    | :----:    | :----:    | :----:    | :----:    | :----:    |");
 
