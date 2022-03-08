@@ -50,9 +50,8 @@ public static class MarkdownUtil
 
         StringBuilder builder = new StringBuilder();
 
-        builder.Append("| File      | Method    |  Static   | Call      | csDuration(ms)    | jsDuration(ms)    | luaDuration(ms)   | csResult  | jsResult  | luaResult |");
-        builder.AppendLine();
-        builder.Append("| :----:    | :----     |  :----    | :----:    | :----:    | :----:    | :----:    | :----:    | :----:    | :----:    |");
+        builder.Append("\n| File      | Method    |  Static   | Call      | csDuration(ms)    | jsDuration(ms)    | luaDuration(ms)   | csResult  | jsResult  | luaResult |");
+        builder.Append("\n| :----:    | :----     |  :----    | :----:    | :----:    | :----:    | :----:    | :----:    | :----:    | :----:    |");
 
         foreach (var state in states)
         {
