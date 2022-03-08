@@ -7,7 +7,7 @@ using XLua;
 /// 参数:   一个值类型参数
 /// 返回值: 无
 /// </summary>
-[Tests]
+[Test]
 public class Example3 : IExecute
 {
     public bool Static => true;

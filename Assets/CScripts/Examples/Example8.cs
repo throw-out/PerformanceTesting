@@ -8,7 +8,7 @@ using XLua;
 /// 参数:   1引用类型, 3个值类型
 /// 返回值: UnityEngine.Quaternion
 /// </summary>
-[Tests]
+[Test]
 public class Example8 : IExecute
 {
     public bool Static => true;

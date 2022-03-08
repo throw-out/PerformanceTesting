@@ -12,6 +12,6 @@ public struct ExecuteStates
 }
 public struct ExecuteState
 {
-    public double Time;
+    public double Duration;
     public object Result;
 }
