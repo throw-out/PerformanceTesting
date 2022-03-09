@@ -8,6 +8,7 @@ using XLua;
 /// 返回值: 无
 /// </summary>
 [Test]
+[TestGroup("Static vs Instance")]
 public class Example2 : IExecute
 {
     public bool Static => false;

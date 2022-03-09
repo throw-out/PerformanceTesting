@@ -6,7 +6,7 @@ using UnityEngine;
 
 public static class MarkdownUtil
 {
-    public static string Generate(List<ExecuteStates> states)
+    public static string Generate(IEnumerable<ExecuteStates> states)
     {
         StringBuilder builder = new StringBuilder();
         builder.AppendLine();
@@ -17,6 +17,45 @@ public static class MarkdownUtil
         builder.Append("# Version");
         builder.Append(GetVersion());
 
+        var typeGroups = states
+            .Where(o => o.Type.IsDefined(typeof(TestGroupAttribute), false))
+            .GroupBy(o => o.Type)
+            .ToDictionary(o => o.Key, o => o.Cast<ExecuteStates>().ToList());
+        var testDatas = typeGroups.Keys
+            .Select(type => type
+                .GetCustomAttributes(typeof(TestGroupAttribute), false)
+                .Select(
+                    o => new TestGroupData { Type = type, Data = ((TestGroupAttribute)o) }
+                )
+            ).ToArray();
+        var testGroups = InnerUtil.Flat(testDatas)
+            .GroupBy(o => o.Data.groupName)
+            .ToDictionary(o => o.Key, o => o.Cast<TestGroupData>().ToList())
+            .Where(o => o.Value.Count > 1)
+            .ToDictionary(o => o.Key, o => o.Value);
+        if (testGroups.Count > 0)
+        {
+            builder.AppendLine();
+            builder.Append("# Group");
+
+            foreach (var testGroup in testGroups)
+            {
+                var compareDataCount = testGroup.Value.Min(o => o.Data.compareDataCount);
+                if (compareDataCount <= 0)
+                    continue;
+                var groupStates = InnerUtil.Flat(testGroup.Value.Select(o => typeGroups[o.Type].ToArray()).ToArray()).ToList();
+                if (groupStates.Count == 0)
+                    continue;
+                var totalCompareCount = testGroup.Value.Count * compareDataCount;
+                groupStates.Sort((v1, v2) => v1.Count > v2.Count ? 1 : v1.Count < v2.Count ? -1 : 0);
+
+                builder.AppendLine();
+                builder.AppendFormat("* {0}", testGroup.Key);
+                builder.AppendLine();
+                builder.Append(FromatToTable(groupStates.Count > totalCompareCount ? groupStates.Skip(groupStates.Count - totalCompareCount) : groupStates));
+            }
+        }
+
         builder.AppendLine();
         builder.Append("# All Data");
         builder.Append(FromatToTable(states));
@@ -26,6 +65,8 @@ public static class MarkdownUtil
     public static string GetVersion()
     {
         StringBuilder builder = new StringBuilder();
+        builder.AppendLine();
+        builder.AppendFormat("| Name            | Value             |");
         builder.AppendLine();
         builder.AppendFormat("| :----           | :----:            |");
         builder.AppendLine();
@@ -39,6 +80,8 @@ public static class MarkdownUtil
     public static string GetEnvironment()
     {
         StringBuilder builder = new StringBuilder();
+        builder.AppendLine();
+        builder.AppendFormat("| Name            | Value             |");
         builder.AppendLine();
         builder.AppendFormat("| :----           | :----:            |");
         builder.AppendLine();
@@ -54,7 +97,7 @@ public static class MarkdownUtil
         return builder.ToString();
     }
 
-    public static string FromatToTable(List<ExecuteStates> states)
+    public static string FromatToTable(IEnumerable<ExecuteStates> states)
     {
         Func<double, string> FormatDuration =
             (duration) => duration >= 0 ? duration.ToString("f1") : "`fail`";
@@ -75,9 +118,9 @@ public static class MarkdownUtil
         StringBuilder builder = new StringBuilder();
 
         builder.AppendLine();
-        builder.Append("| File      | Method    |  Static   | Call      | csharp(ms)| puerts(ms)| xLua(ms)  | csharpResult  | puertsResult  | xLuaResult    |");
+        builder.Append("| File      | Method    | Static    | Call      | csharp(ms)| puerts(ms)| xLua(ms)  | csharpResult  | puertsResult  | xLuaResult    |");
         builder.AppendLine();
-        builder.Append("| :----:    | :----     |  :----    | :----:    | :----:    | :----:    | :----:    | :----:        | :----:        | :----:        |");
+        builder.Append("| :----:    | :----     | :----:    | :----:    | :----:    | :----:    | :----:    | :----:        | :----:        | :----:        |");
 
         foreach (var state in states)
         {
@@ -98,5 +141,28 @@ public static class MarkdownUtil
         }
 
         return builder.ToString();
+    }
+
+
+    struct TestGroupData
+    {
+        public Type Type;
+        public TestGroupAttribute Data;
+    }
+
+    static class InnerUtil
+    {
+        public static T[] Flat<T>(params IEnumerable<T>[] array)
+        {
+            List<T> result = new List<T>();
+            Array.ForEach(array, o => result.AddRange(o));
+            return result.ToArray();
+        }
+        public static T[] Flat<T>(params T[][] array)
+        {
+            List<T> result = new List<T>();
+            Array.ForEach(array, o => result.AddRange(o));
+            return result.ToArray();
+        }
     }
 }
