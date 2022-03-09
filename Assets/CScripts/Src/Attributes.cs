@@ -15,15 +15,16 @@ public sealed class TestAttribute : System.Attribute
 [System.AttributeUsage(System.AttributeTargets.Class, Inherited = false, AllowMultiple = true)]
 public sealed class TestGroupAttribute : System.Attribute
 {
-    public string groupName { get; private set; }
-    public int compareDataCount { get; private set; }
+    public string Name { get; private set; }
+    public string Desc;
+    public int CompareDataCount { get; private set; }
 
-    public TestGroupAttribute(string groupName) : this(groupName, byte.MaxValue)
+    public TestGroupAttribute(string name) : this(name, byte.MaxValue)
     {
     }
-    public TestGroupAttribute(string groupName, int compareDataCount = byte.MaxValue)
+    public TestGroupAttribute(string name, int compareDataCount)
     {
-        this.groupName = groupName;
-        this.compareDataCount = compareDataCount;
+        this.Name = name;
+        this.CompareDataCount = compareDataCount;
     }
 }

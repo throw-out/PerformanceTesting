@@ -8,7 +8,7 @@ using XLua;
 /// 返回值: 无
 /// </summary>
 [Test]
-[TestGroup("Static vs Instance", 2)]
+[TestGroup("Static vs Instance", 1, Desc = "静态函数vs实例函数性能对比")]
 public class Example1 : IExecute
 {
     public bool Static => true;

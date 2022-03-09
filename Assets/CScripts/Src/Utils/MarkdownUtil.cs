@@ -9,13 +9,15 @@ public static class MarkdownUtil
     public static string Generate(IEnumerable<ExecuteStates> states)
     {
         StringBuilder builder = new StringBuilder();
-        builder.AppendLine();
-        builder.Append("# System Environment");
-        builder.Append(GetEnvironment());
 
         builder.AppendLine();
-        builder.Append("# Version");
+        builder.Append("# 软件版本");
         builder.Append(GetVersion());
+
+        builder.AppendLine();
+        builder.Append("# 系统环境");
+        builder.Append(GetEnvironment());
+
 
         var typeGroups = states
             .Where(o => o.Type.IsDefined(typeof(TestGroupAttribute), false))
@@ -29,35 +31,41 @@ public static class MarkdownUtil
                 )
             ).ToArray();
         var testGroups = InnerUtil.Flat(testDatas)
-            .GroupBy(o => o.Data.groupName)
+            .GroupBy(o => o.Data.Name)
             .ToDictionary(o => o.Key, o => o.Cast<TestGroupData>().ToList())
             .Where(o => o.Value.Count > 1)
             .ToDictionary(o => o.Key, o => o.Value);
         if (testGroups.Count > 0)
         {
             builder.AppendLine();
-            builder.Append("# Group");
+            builder.Append("# 数据对照");
 
             foreach (var testGroup in testGroups)
             {
-                var compareDataCount = testGroup.Value.Min(o => o.Data.compareDataCount);
+                var compareDataCount = testGroup.Value.Min(o => o.Data.CompareDataCount);
                 if (compareDataCount <= 0)
                     continue;
                 var groupStates = InnerUtil.Flat(testGroup.Value.Select(o => typeGroups[o.Type].ToArray()).ToArray()).ToList();
                 if (groupStates.Count == 0)
                     continue;
                 var totalCompareCount = testGroup.Value.Count * compareDataCount;
-                groupStates.Sort((v1, v2) => v1.Count > v2.Count ? 1 : v1.Count < v2.Count ? -1 : 0);
+                var groupDesc = testGroup.Value.Select(o => o.Data.Desc).Where(o => !string.IsNullOrEmpty(o)).FirstOrDefault();
+
+                groupStates.Sort((v1, v2) => v1.Count > v2.Count ? 1 : v1.Count < v2.Count ? -1 : 0);       //ascending order
 
                 builder.AppendLine();
                 builder.AppendFormat("* {0}", testGroup.Key);
+                if (!string.IsNullOrEmpty(groupDesc))
+                {
+                    builder.AppendFormat("`{0}`", groupDesc);
+                }
                 builder.AppendLine();
                 builder.Append(FromatToTable(groupStates.Count > totalCompareCount ? groupStates.Skip(groupStates.Count - totalCompareCount) : groupStates));
             }
         }
 
         builder.AppendLine();
-        builder.Append("# All Data");
+        builder.Append("# 所有数据");
         builder.Append(FromatToTable(states));
 
         return builder.ToString();
@@ -111,7 +119,7 @@ public static class MarkdownUtil
             scriptPath = UnityEditor.AssetDatabase.GetAllAssetPaths().FirstOrDefault(p => p.EndsWith(scriptName) && UnityEditor.AssetDatabase.GetMainAssetTypeAtPath(p) == typeof(UnityEditor.MonoScript));
 #endif
 
-            return scriptPath != null ? $"[#](./{scriptPath})" : "#";
+            return scriptPath != null ? $"[#](/{scriptPath})" : "#";
         };
 
 
