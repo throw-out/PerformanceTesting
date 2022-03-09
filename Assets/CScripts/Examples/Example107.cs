@@ -1,23 +1,24 @@
 ﻿using System;
 using Puerts;
+using UnityEngine;
 using XLua;
 
 /// <summary>
 /// 调用脚本function
-/// 逻辑:   无
-/// 参数:   1个值类型
-/// 返回值: 无
+/// 逻辑:   调用Transform.Rotate
+/// 参数:   1引用类型
+/// 返回值: UnityEngine.Quaternion
 /// </summary>
 [Test(100)]
-public class Example103 : IExecute
+public class Example107 : IExecute
 {
     [CSharpCallLua]
-    public delegate void TargetFunc(int param1);
+    public delegate void TargetFunc(Transform transform);
     [CSharpCallLua]
     public delegate TargetFunc CreateFunc();
 
     public bool Static => true;
-    public string Method => "payload(number): void;";
+    public string Method => "payload(Transform): void;";
     public CallTarget Target => CallTarget.CSharpCallScript;
 
     public object RunCS(int count)
@@ -28,30 +29,40 @@ public class Example103 : IExecute
     public object RunJS(JsEnv env, int count)
     {
         var func = env.Eval<TargetFunc>(@"
-function payload(param1){
+function payload(transform){
+    transform.Rotate(1, 1, 1);
 }
 
 payload;
 ");
+        var obj = new GameObject().transform;
         for (int i = 0; i < count; i++)
         {
-            func(i);
+            func(obj);
         }
-        return null;
+        var result = obj.rotation;
+        UnityEngine.Object.Destroy(obj.gameObject);
+
+        return result;
     }
     public object RunLua(LuaEnv env, int count)
     {
         var create = env.LoadString<CreateFunc>(@"
-local function payload(param1)
+local function payload(transform)
+    transform:Rotate(1, 1, 1);
 end
 
 return payload;
 ");
         var func = create();
+        var obj = new GameObject().transform;
         for (int i = 0; i < count; i++)
         {
-            func(i);
+            func(obj);
         }
-        return null;
+        var result = obj.rotation;
+        UnityEngine.Object.Destroy(obj.gameObject);
+
+        return result;
     }
 }

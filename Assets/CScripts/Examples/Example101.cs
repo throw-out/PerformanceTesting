@@ -32,7 +32,7 @@ function payload(){
 }
 
 payload;
-", nameof(Example101));
+");
         for (int i = 0; i < count; i++)
         {
             func();
@@ -46,7 +46,7 @@ local function payload()
 end
 
 return payload;
-", nameof(Example101));
+");
         var func = create();
         for (int i = 0; i < count; i++)
         {

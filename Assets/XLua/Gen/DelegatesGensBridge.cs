@@ -101,6 +101,271 @@ namespace XLua
 #endif
 		}
         
+		public void __Gen_Delegate_Imp4(int p0, int p1, float p2)
+		{
+#if THREAD_SAFE || HOTFIX_ENABLE
+            lock (luaEnv.luaEnvLock)
+            {
+#endif
+                RealStatePtr L = luaEnv.rawL;
+                int errFunc = LuaAPI.pcall_prepare(L, errorFuncRef, luaReference);
+                
+                LuaAPI.xlua_pushinteger(L, p0);
+                LuaAPI.xlua_pushinteger(L, p1);
+                LuaAPI.lua_pushnumber(L, p2);
+                
+                PCall(L, 3, 0, errFunc);
+                
+                
+                
+                LuaAPI.lua_settop(L, errFunc - 1);
+                
+#if THREAD_SAFE || HOTFIX_ENABLE
+            }
+#endif
+		}
+        
+		public Example104.TargetFunc __Gen_Delegate_Imp5()
+		{
+#if THREAD_SAFE || HOTFIX_ENABLE
+            lock (luaEnv.luaEnvLock)
+            {
+#endif
+                RealStatePtr L = luaEnv.rawL;
+                int errFunc = LuaAPI.pcall_prepare(L, errorFuncRef, luaReference);
+                ObjectTranslator translator = luaEnv.translator;
+                
+                PCall(L, 0, 1, errFunc);
+                
+                
+                Example104.TargetFunc __gen_ret = translator.GetDelegate<Example104.TargetFunc>(L, errFunc + 1);
+                LuaAPI.lua_settop(L, errFunc - 1);
+                return  __gen_ret;
+#if THREAD_SAFE || HOTFIX_ENABLE
+            }
+#endif
+		}
+        
+		public float __Gen_Delegate_Imp6(int p0, int p1, float p2)
+		{
+#if THREAD_SAFE || HOTFIX_ENABLE
+            lock (luaEnv.luaEnvLock)
+            {
+#endif
+                RealStatePtr L = luaEnv.rawL;
+                int errFunc = LuaAPI.pcall_prepare(L, errorFuncRef, luaReference);
+                
+                LuaAPI.xlua_pushinteger(L, p0);
+                LuaAPI.xlua_pushinteger(L, p1);
+                LuaAPI.lua_pushnumber(L, p2);
+                
+                PCall(L, 3, 1, errFunc);
+                
+                
+                float __gen_ret = (float)LuaAPI.lua_tonumber(L, errFunc + 1);
+                LuaAPI.lua_settop(L, errFunc - 1);
+                return  __gen_ret;
+#if THREAD_SAFE || HOTFIX_ENABLE
+            }
+#endif
+		}
+        
+		public Example105.TargetFunc __Gen_Delegate_Imp7()
+		{
+#if THREAD_SAFE || HOTFIX_ENABLE
+            lock (luaEnv.luaEnvLock)
+            {
+#endif
+                RealStatePtr L = luaEnv.rawL;
+                int errFunc = LuaAPI.pcall_prepare(L, errorFuncRef, luaReference);
+                ObjectTranslator translator = luaEnv.translator;
+                
+                PCall(L, 0, 1, errFunc);
+                
+                
+                Example105.TargetFunc __gen_ret = translator.GetDelegate<Example105.TargetFunc>(L, errFunc + 1);
+                LuaAPI.lua_settop(L, errFunc - 1);
+                return  __gen_ret;
+#if THREAD_SAFE || HOTFIX_ENABLE
+            }
+#endif
+		}
+        
+		public float __Gen_Delegate_Imp8()
+		{
+#if THREAD_SAFE || HOTFIX_ENABLE
+            lock (luaEnv.luaEnvLock)
+            {
+#endif
+                RealStatePtr L = luaEnv.rawL;
+                int errFunc = LuaAPI.pcall_prepare(L, errorFuncRef, luaReference);
+                
+                
+                PCall(L, 0, 1, errFunc);
+                
+                
+                float __gen_ret = (float)LuaAPI.lua_tonumber(L, errFunc + 1);
+                LuaAPI.lua_settop(L, errFunc - 1);
+                return  __gen_ret;
+#if THREAD_SAFE || HOTFIX_ENABLE
+            }
+#endif
+		}
+        
+		public Example106.TargetFunc __Gen_Delegate_Imp9()
+		{
+#if THREAD_SAFE || HOTFIX_ENABLE
+            lock (luaEnv.luaEnvLock)
+            {
+#endif
+                RealStatePtr L = luaEnv.rawL;
+                int errFunc = LuaAPI.pcall_prepare(L, errorFuncRef, luaReference);
+                ObjectTranslator translator = luaEnv.translator;
+                
+                PCall(L, 0, 1, errFunc);
+                
+                
+                Example106.TargetFunc __gen_ret = translator.GetDelegate<Example106.TargetFunc>(L, errFunc + 1);
+                LuaAPI.lua_settop(L, errFunc - 1);
+                return  __gen_ret;
+#if THREAD_SAFE || HOTFIX_ENABLE
+            }
+#endif
+		}
+        
+		public void __Gen_Delegate_Imp10(UnityEngine.Transform p0)
+		{
+#if THREAD_SAFE || HOTFIX_ENABLE
+            lock (luaEnv.luaEnvLock)
+            {
+#endif
+                RealStatePtr L = luaEnv.rawL;
+                int errFunc = LuaAPI.pcall_prepare(L, errorFuncRef, luaReference);
+                ObjectTranslator translator = luaEnv.translator;
+                translator.Push(L, p0);
+                
+                PCall(L, 1, 0, errFunc);
+                
+                
+                
+                LuaAPI.lua_settop(L, errFunc - 1);
+                
+#if THREAD_SAFE || HOTFIX_ENABLE
+            }
+#endif
+		}
+        
+		public Example107.TargetFunc __Gen_Delegate_Imp11()
+		{
+#if THREAD_SAFE || HOTFIX_ENABLE
+            lock (luaEnv.luaEnvLock)
+            {
+#endif
+                RealStatePtr L = luaEnv.rawL;
+                int errFunc = LuaAPI.pcall_prepare(L, errorFuncRef, luaReference);
+                ObjectTranslator translator = luaEnv.translator;
+                
+                PCall(L, 0, 1, errFunc);
+                
+                
+                Example107.TargetFunc __gen_ret = translator.GetDelegate<Example107.TargetFunc>(L, errFunc + 1);
+                LuaAPI.lua_settop(L, errFunc - 1);
+                return  __gen_ret;
+#if THREAD_SAFE || HOTFIX_ENABLE
+            }
+#endif
+		}
+        
+		public void __Gen_Delegate_Imp12(UnityEngine.Transform p0, float p1, float p2, float p3)
+		{
+#if THREAD_SAFE || HOTFIX_ENABLE
+            lock (luaEnv.luaEnvLock)
+            {
+#endif
+                RealStatePtr L = luaEnv.rawL;
+                int errFunc = LuaAPI.pcall_prepare(L, errorFuncRef, luaReference);
+                ObjectTranslator translator = luaEnv.translator;
+                translator.Push(L, p0);
+                LuaAPI.lua_pushnumber(L, p1);
+                LuaAPI.lua_pushnumber(L, p2);
+                LuaAPI.lua_pushnumber(L, p3);
+                
+                PCall(L, 4, 0, errFunc);
+                
+                
+                
+                LuaAPI.lua_settop(L, errFunc - 1);
+                
+#if THREAD_SAFE || HOTFIX_ENABLE
+            }
+#endif
+		}
+        
+		public Example108.TargetFunc __Gen_Delegate_Imp13()
+		{
+#if THREAD_SAFE || HOTFIX_ENABLE
+            lock (luaEnv.luaEnvLock)
+            {
+#endif
+                RealStatePtr L = luaEnv.rawL;
+                int errFunc = LuaAPI.pcall_prepare(L, errorFuncRef, luaReference);
+                ObjectTranslator translator = luaEnv.translator;
+                
+                PCall(L, 0, 1, errFunc);
+                
+                
+                Example108.TargetFunc __gen_ret = translator.GetDelegate<Example108.TargetFunc>(L, errFunc + 1);
+                LuaAPI.lua_settop(L, errFunc - 1);
+                return  __gen_ret;
+#if THREAD_SAFE || HOTFIX_ENABLE
+            }
+#endif
+		}
+        
+		public void __Gen_Delegate_Imp14(UnityEngine.Transform p0, UnityEngine.Vector3 p1)
+		{
+#if THREAD_SAFE || HOTFIX_ENABLE
+            lock (luaEnv.luaEnvLock)
+            {
+#endif
+                RealStatePtr L = luaEnv.rawL;
+                int errFunc = LuaAPI.pcall_prepare(L, errorFuncRef, luaReference);
+                ObjectTranslator translator = luaEnv.translator;
+                translator.Push(L, p0);
+                translator.PushUnityEngineVector3(L, p1);
+                
+                PCall(L, 2, 0, errFunc);
+                
+                
+                
+                LuaAPI.lua_settop(L, errFunc - 1);
+                
+#if THREAD_SAFE || HOTFIX_ENABLE
+            }
+#endif
+		}
+        
+		public Example109.TargetFunc __Gen_Delegate_Imp15()
+		{
+#if THREAD_SAFE || HOTFIX_ENABLE
+            lock (luaEnv.luaEnvLock)
+            {
+#endif
+                RealStatePtr L = luaEnv.rawL;
+                int errFunc = LuaAPI.pcall_prepare(L, errorFuncRef, luaReference);
+                ObjectTranslator translator = luaEnv.translator;
+                
+                PCall(L, 0, 1, errFunc);
+                
+                
+                Example109.TargetFunc __gen_ret = translator.GetDelegate<Example109.TargetFunc>(L, errFunc + 1);
+                LuaAPI.lua_settop(L, errFunc - 1);
+                return  __gen_ret;
+#if THREAD_SAFE || HOTFIX_ENABLE
+            }
+#endif
+		}
+        
         
 		static DelegateBridge()
 		{
@@ -128,6 +393,66 @@ namespace XLua
 		    if (type == typeof(Example103.CreateFunc))
 			{
 			    return new Example103.CreateFunc(__Gen_Delegate_Imp3);
+			}
+		
+		    if (type == typeof(Example104.TargetFunc))
+			{
+			    return new Example104.TargetFunc(__Gen_Delegate_Imp4);
+			}
+		
+		    if (type == typeof(Example104.CreateFunc))
+			{
+			    return new Example104.CreateFunc(__Gen_Delegate_Imp5);
+			}
+		
+		    if (type == typeof(Example105.TargetFunc))
+			{
+			    return new Example105.TargetFunc(__Gen_Delegate_Imp6);
+			}
+		
+		    if (type == typeof(Example105.CreateFunc))
+			{
+			    return new Example105.CreateFunc(__Gen_Delegate_Imp7);
+			}
+		
+		    if (type == typeof(Example106.TargetFunc))
+			{
+			    return new Example106.TargetFunc(__Gen_Delegate_Imp8);
+			}
+		
+		    if (type == typeof(Example106.CreateFunc))
+			{
+			    return new Example106.CreateFunc(__Gen_Delegate_Imp9);
+			}
+		
+		    if (type == typeof(Example107.TargetFunc))
+			{
+			    return new Example107.TargetFunc(__Gen_Delegate_Imp10);
+			}
+		
+		    if (type == typeof(Example107.CreateFunc))
+			{
+			    return new Example107.CreateFunc(__Gen_Delegate_Imp11);
+			}
+		
+		    if (type == typeof(Example108.TargetFunc))
+			{
+			    return new Example108.TargetFunc(__Gen_Delegate_Imp12);
+			}
+		
+		    if (type == typeof(Example108.CreateFunc))
+			{
+			    return new Example108.CreateFunc(__Gen_Delegate_Imp13);
+			}
+		
+		    if (type == typeof(Example109.TargetFunc))
+			{
+			    return new Example109.TargetFunc(__Gen_Delegate_Imp14);
+			}
+		
+		    if (type == typeof(Example109.CreateFunc))
+			{
+			    return new Example109.CreateFunc(__Gen_Delegate_Imp15);
 			}
 		
 		    return null;
