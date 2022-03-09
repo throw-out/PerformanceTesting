@@ -1,6 +1,8 @@
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-blue.svg)](/pulls)
+[![Example](https://img.shields.io/badge/Test-example-blue.svg)](/issues)
+
 # 简介
  Unity游戏引擎, C#原生丶puerts脚本丶xLua脚本性能测试与横向对比
- > 欢迎pr提交测试例子
 
 # 测试项目
 - [x] 编辑器反射调用
