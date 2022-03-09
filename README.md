@@ -2,6 +2,10 @@
  Unity游戏引擎, C#原生丶puerts脚本丶xLua脚本性能测试与横向对比
 
 # 测试项目
+- [x] 编辑器反射调用
+- [x] 编辑器静态代码调用
+- [x] IL2CPP打包调用
+- [ ] BlittableCopy(puerts)调用
 
 * 调用CSharp方法
     - [x] [Example1](/Assets/CScripts/Examples/Example1.cs): 静态方法, 无参无返回值
