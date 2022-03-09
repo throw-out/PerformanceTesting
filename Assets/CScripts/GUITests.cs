@@ -166,7 +166,13 @@ public class GUITests : MonoBehaviour
             }
         }
 
-        string statesFilePath = Path.Combine(Application.dataPath, "../STATES.md");
+        string statesFilePath =
+#if UNITY_EDITOR || UNITY_STANDALONE_WIN
+            Path.Combine(Application.dataPath, "../STATES.md");
+#else
+            Path.Combine(Application.persistentDataPath, "/STATES.md");
+#endif
+
         File.WriteAllText(statesFilePath, MarkdownUtil.Generate(statesList));
 
         testingInfo.AppendFormat("\n\ntest completed! total duration = {0}ms", totalDuration.End().ToString("f1"));
