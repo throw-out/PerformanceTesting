@@ -8,10 +8,12 @@ using XLua;
 /// 返回值: 无
 /// </summary>
 [Test]
+[TestGroup("ParameterCompare")]
 public class Example4 : IExecute
 {
     public bool Static => true;
     public string Method => "void Payload(int, int, float);";
+    public CallTarget Target => CallTarget.ScriptCallCSharp;
 
     public object RunCS(int count)
     {

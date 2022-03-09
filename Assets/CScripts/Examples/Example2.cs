@@ -13,6 +13,7 @@ public class Example2 : IExecute
 {
     public bool Static => false;
     public string Method => "void Payload();";
+    public CallTarget Target => CallTarget.ScriptCallCSharp;
 
     public object RunCS(int count)
     {

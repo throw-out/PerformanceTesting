@@ -8,11 +8,13 @@ using XLua;
 /// 返回值: 无
 /// </summary>
 [Test]
-[TestGroup("Static vs Instance", 1, Desc = "静态函数vs实例函数性能对比")]
+[TestGroup("Static vs Instance", 1, Desc = "静态函数 vs 实例函数")]
+[TestGroup("ParameterCompare", 1, Desc = "无参数 vs 有参数")]
 public class Example1 : IExecute
 {
     public bool Static => true;
     public string Method => "void Payload();";
+    public CallTarget Target => CallTarget.ScriptCallCSharp;
 
     public object RunCS(int count)
     {

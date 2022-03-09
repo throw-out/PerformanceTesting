@@ -135,8 +135,9 @@ public class GUITests : MonoBehaviour
                 statesList.Add(new ExecuteStates()
                 {
                     Type = execute.GetType(),
-                    Method = execute.Method,
                     Static = execute.Static,
+                    Method = execute.Method,
+                    Target = execute.Target,
                     Count = count,
                     CsInvoke = csInvoke,
                     JsInvoke = jsInvoke,

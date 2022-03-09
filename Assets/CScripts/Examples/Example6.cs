@@ -12,6 +12,7 @@ public class Example6 : IExecute
 {
     public bool Static => true;
     public string Method => "float Payload();";
+    public CallTarget Target => CallTarget.ScriptCallCSharp;
 
     public object RunCS(int count)
     {

@@ -3,8 +3,9 @@ using System;
 public struct ExecuteStates
 {
     public Type Type;
-    public string Method;
     public bool Static;
+    public string Method;
+    public CallTarget Target;
     public int Count;
     public ExecuteState CsInvoke;
     public ExecuteState JsInvoke;

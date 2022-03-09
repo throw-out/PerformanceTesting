@@ -13,6 +13,7 @@ public class Example7 : IExecute
 {
     public bool Static => true;
     public string Method => "Quaternion Payload(Transform);";
+    public CallTarget Target => CallTarget.ScriptCallCSharp;
 
     public object RunCS(int count)
     {

@@ -9,11 +9,12 @@ using XLua;
 /// 返回值: UnityEngine.Quaternion
 /// </summary>
 [Test]
-[TestGroup("xyz vs Vector3", 1, Desc = "xyz传参对比vector传参")]
+[TestGroup("xyz vs Vector3", 1, Desc = "xyz传参 vs Vector3传参")]
 public class Example8 : IExecute
 {
     public bool Static => true;
     public string Method => "Quaternion Payload(Transform, float, float, float);";
+    public CallTarget Target => CallTarget.ScriptCallCSharp;
 
     public object RunCS(int count)
     {
