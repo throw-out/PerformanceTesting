@@ -101,6 +101,7 @@ public class GUITests : MonoBehaviour
         {
             testingInfo.AppendLine();
             testingInfo.Append("test instance not found");
+            testing = false;
             Render();
             yield break;
         }
@@ -170,6 +171,7 @@ public class GUITests : MonoBehaviour
 
         testingInfo.AppendFormat("\n\ntest completed! total duration = {0}ms", totalDuration.End().ToString("f1"));
         testingInfo.AppendFormat("\n\nstates file write to: {0}", statesFilePath);
+        testing = false;
         Render();
     }
 }
