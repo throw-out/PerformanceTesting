@@ -7,3 +7,14 @@ Temp
 *.sln
 *.csproj
 STATES.md
+Assets/Gen/*_Wrap.cs
+Assets/Gen/*_Wrap.cs.meta
+Assets/Gen/AutoStaticCodeRegister.cs
+Assets/Gen/AutoStaticCodeRegister.cs.meta
+Assets/Gen/Typing
+Assets/Gen/Typing.meta
+Assets/XLua/Gen/*Wrap.cs
+Assets/XLua/Gen/*Wrap.cs.meta
+Assets/XLua/Gen/XLuaGenAutoRegister.cs
+Assets/XLua/Gen/XLuaGenAutoRegister.cs.meta
+

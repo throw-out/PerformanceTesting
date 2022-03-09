@@ -19,12 +19,67 @@ namespace XLua.CSObjectWrap
 	{
         
         
+        static void wrapInit0(LuaEnv luaenv, ObjectTranslator translator)
+        {
+        
+            translator.DelayWrapLoader(typeof(Example1), Example1Wrap.__Register);
+        
+        
+            translator.DelayWrapLoader(typeof(Example2), Example2Wrap.__Register);
+        
+        
+            translator.DelayWrapLoader(typeof(Example3), Example3Wrap.__Register);
+        
+        
+            translator.DelayWrapLoader(typeof(Example4), Example4Wrap.__Register);
+        
+        
+            translator.DelayWrapLoader(typeof(Example5), Example5Wrap.__Register);
+        
+        
+            translator.DelayWrapLoader(typeof(Example6), Example6Wrap.__Register);
+        
+        
+            translator.DelayWrapLoader(typeof(Example7), Example7Wrap.__Register);
+        
+        
+            translator.DelayWrapLoader(typeof(Example8), Example8Wrap.__Register);
+        
+        
+            translator.DelayWrapLoader(typeof(Example9), Example9Wrap.__Register);
+        
+        
+            translator.DelayWrapLoader(typeof(Example101), Example101Wrap.__Register);
+        
+        
+            translator.DelayWrapLoader(typeof(Example103), Example103Wrap.__Register);
+        
+        
+            translator.DelayWrapLoader(typeof(Example104), Example104Wrap.__Register);
+        
+        
+            translator.DelayWrapLoader(typeof(Example105), Example105Wrap.__Register);
+        
+        
+            translator.DelayWrapLoader(typeof(Example106), Example106Wrap.__Register);
+        
+        
+            translator.DelayWrapLoader(typeof(Example107), Example107Wrap.__Register);
+        
+        
+            translator.DelayWrapLoader(typeof(Example108), Example108Wrap.__Register);
+        
+        
+            translator.DelayWrapLoader(typeof(Example109), Example109Wrap.__Register);
         
         
         
+        }
         
         static void Init(LuaEnv luaenv, ObjectTranslator translator)
         {
+            
+            wrapInit0(luaenv, translator);
             
             
         }

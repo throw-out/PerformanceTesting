@@ -2,4 +2,25 @@
 
 <linker>
 
+	<assembly fullname="Assembly-CSharp">
+	    <type fullname="Example1" preserve="all"/>
+		<type fullname="Example2" preserve="all"/>
+		<type fullname="Example3" preserve="all"/>
+		<type fullname="Example4" preserve="all"/>
+		<type fullname="Example5" preserve="all"/>
+		<type fullname="Example6" preserve="all"/>
+		<type fullname="Example7" preserve="all"/>
+		<type fullname="Example8" preserve="all"/>
+		<type fullname="Example9" preserve="all"/>
+		<type fullname="Example101" preserve="all"/>
+		<type fullname="Example103" preserve="all"/>
+		<type fullname="Example104" preserve="all"/>
+		<type fullname="Example105" preserve="all"/>
+		<type fullname="Example106" preserve="all"/>
+		<type fullname="Example107" preserve="all"/>
+		<type fullname="Example108" preserve="all"/>
+		<type fullname="Example109" preserve="all"/>
+		
+	</assembly>
+
 </linker>
