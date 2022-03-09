@@ -65,9 +65,9 @@ public static class MarkdownUtil
         builder.AppendLine();
         builder.AppendFormat("| CPU-Frequency   | {0}GHz            |", SystemInfo.processorFrequency * 0.001f); //处理器频率
         builder.AppendLine();
-        builder.AppendFormat("| Date            | {0}               |", DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss"));  //本地电脑时间
-        builder.AppendLine();
         builder.AppendFormat("| Editor          | {0}               |", Application.isEditor);          //是否为编辑器模式
+        builder.AppendLine();
+        builder.AppendFormat("| Date            | {0}               |", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));  //本地电脑时间
         return builder.ToString();
     }
 
@@ -140,7 +140,7 @@ public static class MarkdownUtil
             scriptPath = UnityEditor.AssetDatabase.GetAllAssetPaths().FirstOrDefault(p => p.EndsWith(scriptName) && UnityEditor.AssetDatabase.GetMainAssetTypeAtPath(p) == typeof(UnityEditor.MonoScript));
 #endif
             //return scriptPath != null ? $"[![#](/pic/code.png)](/{scriptPath})" : "#";    //use picture or emoji
-            return scriptPath != null ? $"[:tw-1f4cb:](/{scriptPath})" : "#";
+            return scriptPath != null ? $"[:page_facing_up:](/{scriptPath})" : "#";
         };
 
 
