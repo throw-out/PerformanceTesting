@@ -3,7 +3,7 @@ public sealed class TestAttribute : System.Attribute
 {
     public int priority { get; private set; }
 
-    public TestAttribute() : this(0)
+    public TestAttribute() : this(int.MaxValue)
     {
     }
     public TestAttribute(int priority)

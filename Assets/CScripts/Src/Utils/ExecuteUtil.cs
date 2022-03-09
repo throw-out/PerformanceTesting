@@ -26,10 +26,14 @@ public static class ExecuteUtil
             result = execute.RunCS(count);
             duration = timer.End();
         }
-        catch (Exception)
+        catch (Exception e)
         {
             result = null;
             duration = -1;
+            if (!(e is System.NotImplementedException))
+            {
+                UnityEngine.Debug.LogWarning(execute.GetType().FullName + "Exception: \n" + e);
+            }
         }
         return new ExecuteState()
         {
@@ -48,10 +52,14 @@ public static class ExecuteUtil
             result = execute.RunJS(env, count);
             duration = timer.End();
         }
-        catch (Exception)
+        catch (Exception e)
         {
             result = null;
             duration = -1;
+            if (!(e is System.NotImplementedException))
+            {
+                UnityEngine.Debug.LogWarning(execute.GetType().FullName + "Exception: \n" + e);
+            }
         }
         return new ExecuteState()
         {
@@ -70,10 +78,14 @@ public static class ExecuteUtil
             result = execute.RunLua(env, count);
             duration = timer.End();
         }
-        catch (Exception)
+        catch (Exception e)
         {
             result = null;
             duration = -1;
+            if (!(e is System.NotImplementedException))
+            {
+                UnityEngine.Debug.LogWarning(execute.GetType().FullName + " Exception: \n" + e);
+            }
         }
         return new ExecuteState()
         {

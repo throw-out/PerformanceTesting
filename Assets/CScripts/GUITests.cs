@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using Puerts;
 using UnityEngine;
@@ -31,6 +32,12 @@ public class GUITests : MonoBehaviour
         testingInfo = null;
 
         this.InitListeners();
+        this.AutoUsing(jsEnv);
+    }
+    private void Update()
+    {
+        jsEnv.Tick();
+        luaEnv.Tick();
     }
     private void OnDestroy()
     {
@@ -73,6 +80,18 @@ public class GUITests : MonoBehaviour
         testing = false;
         StopAllCoroutines();
         Render();
+    }
+    private void AutoUsing(JsEnv env)
+    {
+        const string typeName = "PuertsStaticWrap.AutoStaticCodeUsing";
+        var type = (from _assembly in AppDomain.CurrentDomain.GetAssemblies()
+                    let _type = _assembly.GetType(typeName, false)
+                    where _type != null
+                    select _type).FirstOrDefault();
+        if (type != null)
+        {
+            type.GetMethod("AutoUsing").Invoke(null, new object[] { env });
+        }
     }
 
     private IEnumerator ExecuteTesting()
