@@ -32,7 +32,7 @@ function payload(param1){
 }
 
 payload;
-");
+", nameof(Example101));
         for (int i = 0; i < count; i++)
         {
             func(i);
@@ -41,21 +41,13 @@ payload;
     }
     public object RunLua(LuaEnv env, int count)
     {
-        /*
         var create = env.LoadString<CreateFunc>(@"
-function payload(param1)
+local function payload(param1)
 end
 
 return payload;
-");
+", nameof(Example101));
         var func = create();
-        //*/
-        env.DoString(@"
-function payload(param1)
-end
-");
-        var func = env.Global.Get<TargetFunc>("payload");
-
         for (int i = 0; i < count; i++)
         {
             func(i);

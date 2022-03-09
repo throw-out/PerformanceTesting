@@ -8,7 +8,7 @@ public static class XLuaConfig
     [CSharpCallLua]
     static IEnumerable<Type> DynamicBindings = new List<Type>()
     {
-        typeof(Example103.TargetFunc),
-        typeof(Example103.CreateFunc)
+        //typeof(Example103.TargetFunc),
+        //typeof(Example103.CreateFunc)
     };
 }
