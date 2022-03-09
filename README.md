@@ -1,5 +1,5 @@
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-blue.svg)](/pulls)
-[![Example](https://img.shields.io/badge/Test-example-blue.svg)](/issues)
+[![Example](https://img.shields.io/badge/Test-example-blue.svg)](/Assets/CScripts/Examples)
 
 # 简介
  Unity游戏引擎, C#原生丶puerts脚本丶xLua脚本性能测试与横向对比
