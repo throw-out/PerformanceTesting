@@ -19,9 +19,9 @@
  - [ ] ValueType BlittableCopy unsafe编译
 
  * 软件版本
- - Unity: 2019.4.28f1c1
- - puerts: [v1.2.4_version_15](https://github.com/Tencent/puerts/releases/tag/Unity_Plugin_1.2.4)
- - xLua: [v2.1.16_newest_luajit](https://github.com/Tencent/xLua/releases/tag/v2.1.16_newest_luajit)
+ - [x] Unity: 2019.4.28f1c1
+ - [x] puerts: [v1.2.4_version_15](https://github.com/Tencent/puerts/releases/tag/Unity_Plugin_1.2.4)
+ - [x] xLua: [v2.1.16_newest_luajit](https://github.com/Tencent/xLua/releases/tag/v2.1.16_newest_luajit)
 
 # 测试项目
  * 脚本调用CSharp
