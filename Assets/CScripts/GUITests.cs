@@ -170,7 +170,7 @@ public class GUITests : MonoBehaviour
 #if UNITY_EDITOR || UNITY_STANDALONE_WIN
             Path.Combine(Application.dataPath, "../STATES.md");
 #else
-            Path.Combine(Application.persistentDataPath, "/STATES.md");
+            Path.Combine(Application.persistentDataPath, "./STATES.md");
 #endif
 
         File.WriteAllText(statesFilePath, MarkdownUtil.Generate(statesList));
