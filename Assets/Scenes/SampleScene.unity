@@ -1149,7 +1149,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   autoStart: 1
-  callCounts: e803000010270000a0860100
+  callCounts: 10270000a0860100
   m_ContentText: {fileID: 2010908250}
   m_StartBtn: {fileID: 382358313}
   m_StopBtn: {fileID: 406628905}

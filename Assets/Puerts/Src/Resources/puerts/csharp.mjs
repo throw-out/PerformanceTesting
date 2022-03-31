@@ -10,9 +10,11 @@ var global = global || globalThis || (function () { return this; }());
 
 function csTypeToClass(csType) {
     let cls = puerts.loadType(csType);
-
+    
     if (cls) {
         let currentCls = cls, parentPrototype = Object.getPrototypeOf(currentCls.prototype);
+
+        // 此处parentPrototype如果是一个泛型，会丢失父父的继承信息，必须循环找下去
         while (parentPrototype) {
             Object.setPrototypeOf(currentCls, parentPrototype.constructor);//v8 api的inherit并不能把静态属性也继承，通过这种方式修复下
             currentCls.__static_inherit__ = true;
@@ -22,8 +24,7 @@ function csTypeToClass(csType) {
             if (currentCls === Object || currentCls === Function || currentCls.__static_inherit__) break;
         }
 
-
-        for (var key in cls) {
+        for(var key in cls) {
             let desc = Object.getOwnPropertyDescriptor(cls, key);
             if (desc && desc.configurable && (typeof desc.get) == 'function' && (typeof desc.value) == 'undefined') {
                 let val = cls[key];
@@ -40,7 +41,7 @@ function csTypeToClass(csType) {
 
         let nestedTypes = puerts.getNestedTypes(csType);
         if (nestedTypes) {
-            for (var i = 0; i < nestedTypes.Length; i++) {
+            for(var i = 0; i < nestedTypes.Length; i++) {
                 let ntype = nestedTypes.get_Item(i);
                 cls[ntype.Name] = csTypeToClass(ntype);
             }
@@ -49,10 +50,10 @@ function csTypeToClass(csType) {
     return cls;
 }
 
-function Namespace() { }
+function Namespace() {}
 function createTypeProxy(namespace) {
     return new Proxy(new Namespace, {
-        get: function (cache, name) {
+        get: function(cache, name) {
             if (!(name in cache)) {
                 let fullName = namespace ? (namespace + '.' + name) : name;
                 if (/\$\d+$/.test(name)) {
@@ -81,7 +82,7 @@ puerts.registerBuildinModule('csharp', csharpModule);
 csharpModule.System.Object.prototype.toString = csharpModule.System.Object.prototype.ToString;
 
 function ref(x) {
-    return { value: x };
+    return {value:x};
 }
 
 function unref(r) {
@@ -143,7 +144,7 @@ function bindThisToFirstArgument(func, parentFunc) {
             };
         }
     }
-    return function (...args) {
+    return function(...args) {
         return func.apply(null, [this, ...args]);
     }
 }
@@ -152,10 +153,10 @@ function doExtension(cls, extension) {
     // if you already generate static wrap for cls and extension, then you are no need to invoke this function
     // 如果你已经为extension和cls生成静态wrap，则不需要调用这个函数。
     var parentPrototype = Object.getPrototypeOf(cls.prototype);
-    Object.keys(extension).forEach(key => {
+    Object.keys(extension).forEach(key=> {
         var func = extension[key];
         if (typeof func == 'function' && key != 'constructor' && !(key in cls.prototype)) {
-            var parentFunc = parentPrototype ? parentPrototype[key] : undefined;
+    var parentFunc = parentPrototype ? parentPrototype[key] : undefined;
             parentFunc = typeof parentFunc === "function" ? parentFunc : undefined;
             Object.defineProperty(cls.prototype, key, {
                 value: bindThisToFirstArgument(func, parentFunc),
@@ -172,8 +173,8 @@ puerts.$set = setref;
 puerts.$promise = taskToPromise;
 puerts.$generic = makeGeneric;
 puerts.$typeof = getType;
-puerts.$extension = (cls, extension) => {
-    typeof console != 'undefined' && console.warn(`deprecated! if you already generate static wrap for ${cls} and ${extension}, you are no need to invoke $extension`);
+puerts.$extension = (cls, extension) => { 
+    typeof console != 'undefined' && console.warn(`deprecated! if you already generate static wrap for ${cls} and ${extension}, you are no need to invoke $extension`); 
     return doExtension(cls, extension)
 };
 puerts.$reflectExtension = doExtension;

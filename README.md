@@ -4,13 +4,27 @@
 # 简介
  Unity游戏引擎, C#原生丶puerts脚本丶xLua脚本性能测试与横向对比
 
-# 测试项目
-- [x] 编辑器反射调用
-- [x] 编辑器静态代码调用
-- [x] IL2CPP打包调用
-- [ ] BlittableCopy(puerts)调用
+# 测试平台
+ * 基础
+ - [x] 反射调用-Editor
+ - [x] 反射调用-Windows
+ - [x] 反射调用-Androd
+ - [x] 静态代码调用-Editor
+ - [x] 静态代码调用-Windows
+ - [x] 静态代码调用-Android
+ - [x] IL2CPP调用-Windows
+ - [x] IL2CPP调用-Android
 
-* 调用CSharp方法
+ * 附加
+ - [ ] ValueType BlittableCopy unsafe编译
+
+ * 软件版本
+ - Unity: 2019.4.28f1c1
+ - puerts: [v1.2.4_version_15](https://github.com/Tencent/puerts/releases/tag/Unity_Plugin_1.2.4)
+ - xLua: [v2.1.16_newest_luajit](https://github.com/Tencent/xLua/releases/tag/v2.1.16_newest_luajit)
+
+# 测试项目
+ * 脚本调用CSharp
     - [x] [Example1](/Assets/CScripts/Examples/Example1.cs): 静态方法, 无参无返回值
     - [x] [Example2](/Assets/CScripts/Examples/Example2.cs): 实例方法, 无参无返回值
     - [x] [Example3](/Assets/CScripts/Examples/Example3.cs): 静态方法, 1个参数无返回值
@@ -21,7 +35,7 @@
     - [x] [Example8](/Assets/CScripts/Examples/Example8.cs): 静态方法, Transform.Rotate传参xyz 
     - [x] [Example9](/Assets/CScripts/Examples/Example9.cs): 静态方法, Transform.Rotate传参Vector3 
     
-* CSharp调用脚本方法
+ * CSharp调用脚本
     - [x] [Example101](/Assets/CScripts/Examples/Example101.cs): 无参无返回值
     - [x] [Example103](/Assets/CScripts/Examples/Example103.cs): 1个参数无返回值
     - [x] [Example104](/Assets/CScripts/Examples/Example104.cs): 3个参数无返回值
@@ -32,6 +46,19 @@
     - [x] [Example109](/Assets/CScripts/Examples/Example109.cs): Transform.Rotate传参Vector3 
 
 # 测试结果
- * 反射调用: [查看结果](/States/STATES_BY_REFLECTION.md)
- * 静态代码调用: [查看结果](./States/STATES_BY_STATIC_CODE.md)
- * IL2CPP调用: [查看结果](./States/STATES_BY_IL2CPP.md)
+ * [查看结果](/States)
+
+# 结论
+ * xLua性能优于puerts，据作者[@John](https://github.com/chexiongsheng)所言，Unity与C++(puerts)相互调用比较与C(xLua)相互调用要慢
+ * 使用puerts应尽量避免跨语言调用 `PS:使用任何脚本框架都应该尽量避免跨语言调用`
+ * puerts没有脚本fix功能: 推荐使用 [InjectFix](https://github.com/Tencent/InjectFix) + [puerts]([InjectFix](https://github.com/Tencent/puerts) 混合开发
+
+# 如何选择
+|               | puerts                        | xLua                          |
+| :-----        | :-----                        | :-----                        |
+| 开发语言       | [typescript](https://www.tslang.cn/)丶javascript        | lua丶haxe(不推荐)              |
+| 跨语言效率     |       低                      |           高                    |
+| IDE支持        | [vscode](https://code.visualstudio.com/) 丶[rider](https://www.jetbrains.com/rider/) | [EmmyLua](https://github.com/EmmyLua)丶[LuaPanda](https://github.com/Tencent/LuaPanda)丶[LuaPerfect](https://github.com/jiangzheng1986/LuaPerfect)               |
+| 代码提示       | 完整类型推断                   |  局部类型推断+手动注释          |
+| 代码规范       | eslint丶tslint等               |  人工review                   |
+| 第三方库       | 得益于浏览器丶nodejs的普及, [npm](https://www.npmjs.com/)上拥有大量可用es库 | 有限支持      |

@@ -214,7 +214,7 @@ namespace Puerts
             {
                 var genericArgumentNames = type.GetGenericArguments()
                     .Select(x => GetFriendlyName(x)).ToArray();
-                return type.FullName?.Split('`')[0] + "<" + string.Join(", ", genericArgumentNames) + ">";
+                return type.FullName.Split('`')[0] + "<" + string.Join(", ", genericArgumentNames) + ">";
             }
             else
                 return type.FullName;
