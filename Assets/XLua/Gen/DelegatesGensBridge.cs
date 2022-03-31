@@ -653,30 +653,7 @@ namespace XLua
 #endif
 		}
         
-		public byte[] __Gen_Delegate_Imp28(ref string p0)
-		{
-#if THREAD_SAFE || HOTFIX_ENABLE
-            lock (luaEnv.luaEnvLock)
-            {
-#endif
-                RealStatePtr L = luaEnv.rawL;
-                int errFunc = LuaAPI.pcall_prepare(L, errorFuncRef, luaReference);
-                
-                LuaAPI.lua_pushstring(L, p0);
-                
-                PCall(L, 1, 2, errFunc);
-                
-                p0 = LuaAPI.lua_tostring(L, errFunc + 2);
-                
-                byte[] __gen_ret = LuaAPI.lua_tobytes(L, errFunc + 1);
-                LuaAPI.lua_settop(L, errFunc - 1);
-                return  __gen_ret;
-#if THREAD_SAFE || HOTFIX_ENABLE
-            }
-#endif
-		}
-        
-		public void __Gen_Delegate_Imp29(System.IntPtr p0, object p1)
+		public void __Gen_Delegate_Imp28(System.IntPtr p0, object p1)
 		{
 #if THREAD_SAFE || HOTFIX_ENABLE
             lock (luaEnv.luaEnvLock)
@@ -699,7 +676,7 @@ namespace XLua
 #endif
 		}
         
-		public object __Gen_Delegate_Imp30(System.IntPtr p0, int p1)
+		public object __Gen_Delegate_Imp29(System.IntPtr p0, int p1)
 		{
 #if THREAD_SAFE || HOTFIX_ENABLE
             lock (luaEnv.luaEnvLock)
@@ -722,7 +699,7 @@ namespace XLua
 #endif
 		}
         
-		public void __Gen_Delegate_Imp31(System.IntPtr p0, int p1, object p2)
+		public void __Gen_Delegate_Imp30(System.IntPtr p0, int p1, object p2)
 		{
 #if THREAD_SAFE || HOTFIX_ENABLE
             lock (luaEnv.luaEnvLock)
@@ -746,7 +723,7 @@ namespace XLua
 #endif
 		}
         
-		public void __Gen_Delegate_Imp32(Puerts.JsEnv p0, Puerts.ILoader p1, int p2)
+		public byte[] __Gen_Delegate_Imp31(ref string p0)
 		{
 #if THREAD_SAFE || HOTFIX_ENABLE
             lock (luaEnv.luaEnvLock)
@@ -754,39 +731,16 @@ namespace XLua
 #endif
                 RealStatePtr L = luaEnv.rawL;
                 int errFunc = LuaAPI.pcall_prepare(L, errorFuncRef, luaReference);
-                ObjectTranslator translator = luaEnv.translator;
-                translator.Push(L, p0);
-                translator.PushAny(L, p1);
-                LuaAPI.xlua_pushinteger(L, p2);
                 
-                PCall(L, 3, 0, errFunc);
+                LuaAPI.lua_pushstring(L, p0);
                 
+                PCall(L, 1, 2, errFunc);
                 
+                p0 = LuaAPI.lua_tostring(L, errFunc + 2);
                 
+                byte[] __gen_ret = LuaAPI.lua_tobytes(L, errFunc + 1);
                 LuaAPI.lua_settop(L, errFunc - 1);
-                
-#if THREAD_SAFE || HOTFIX_ENABLE
-            }
-#endif
-		}
-        
-		public void __Gen_Delegate_Imp33(Puerts.JsEnv p0)
-		{
-#if THREAD_SAFE || HOTFIX_ENABLE
-            lock (luaEnv.luaEnvLock)
-            {
-#endif
-                RealStatePtr L = luaEnv.rawL;
-                int errFunc = LuaAPI.pcall_prepare(L, errorFuncRef, luaReference);
-                ObjectTranslator translator = luaEnv.translator;
-                translator.Push(L, p0);
-                
-                PCall(L, 1, 0, errFunc);
-                
-                
-                
-                LuaAPI.lua_settop(L, errFunc - 1);
-                
+                return  __gen_ret;
 #if THREAD_SAFE || HOTFIX_ENABLE
             }
 #endif
@@ -941,34 +895,24 @@ namespace XLua
 			    return new Puerts.LogCallback(__Gen_Delegate_Imp27);
 			}
 		
-		    if (type == typeof(XLua.LuaEnv.CustomLoader))
-			{
-			    return new XLua.LuaEnv.CustomLoader(__Gen_Delegate_Imp28);
-			}
-		
 		    if (type == typeof(XLua.ObjectTranslator.PushCSObject))
 			{
-			    return new XLua.ObjectTranslator.PushCSObject(__Gen_Delegate_Imp29);
+			    return new XLua.ObjectTranslator.PushCSObject(__Gen_Delegate_Imp28);
 			}
 		
 		    if (type == typeof(XLua.ObjectTranslator.GetCSObject))
 			{
-			    return new XLua.ObjectTranslator.GetCSObject(__Gen_Delegate_Imp30);
+			    return new XLua.ObjectTranslator.GetCSObject(__Gen_Delegate_Imp29);
 			}
 		
 		    if (type == typeof(XLua.ObjectTranslator.UpdateCSObject))
 			{
-			    return new XLua.ObjectTranslator.UpdateCSObject(__Gen_Delegate_Imp31);
+			    return new XLua.ObjectTranslator.UpdateCSObject(__Gen_Delegate_Imp30);
 			}
 		
-		    if (type == typeof(Puerts.JsEnv.JsEnvCreateCallback))
+		    if (type == typeof(XLua.LuaEnv.CustomLoader))
 			{
-			    return new Puerts.JsEnv.JsEnvCreateCallback(__Gen_Delegate_Imp32);
-			}
-		
-		    if (type == typeof(Puerts.JsEnv.JsEnvDisposeCallback))
-			{
-			    return new Puerts.JsEnv.JsEnvDisposeCallback(__Gen_Delegate_Imp33);
+			    return new XLua.LuaEnv.CustomLoader(__Gen_Delegate_Imp31);
 			}
 		
 		    return null;

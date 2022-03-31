@@ -27,7 +27,9 @@ public static class XLuaConfig
             var delegateTypes = (from assembly in customAssemblys.Select(s => Assembly.Load(s))
                                  where !(assembly.ManifestModule is System.Reflection.Emit.ModuleBuilder)
                                  from type in assembly.GetExportedTypes()
-                                 where typeof(Delegate).IsAssignableFrom(type)
+                                 where typeof(Delegate).IsAssignableFrom(type) &&
+                                    type != typeof(Puerts.JsEnv.JsEnvCreateCallback) &&
+                                    type != typeof(Puerts.JsEnv.JsEnvDisposeCallback)
                                  select type);
 
             return exampleTypes

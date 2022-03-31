@@ -51,7 +51,7 @@
 # 结论
  * xLua性能优于puerts，据作者[@John](https://github.com/chexiongsheng)所言，Unity与C++(puerts)相互调用比较与C(xLua)相互调用要慢
  * 使用puerts应尽量避免跨语言调用 `PS:使用任何脚本框架都应该尽量避免跨语言调用`
- * puerts没有脚本fix功能: 推荐使用 [InjectFix](https://github.com/Tencent/InjectFix) + [puerts]([InjectFix](https://github.com/Tencent/puerts) 混合开发
+ * puerts没有脚本fix功能: 推荐使用 [InjectFix](https://github.com/Tencent/InjectFix) + [puerts](https://github.com/Tencent/puerts) 混合开发
 
 # 如何选择
 |               | puerts                        | xLua                          |
