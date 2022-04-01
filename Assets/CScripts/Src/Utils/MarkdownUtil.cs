@@ -139,7 +139,7 @@ public static class MarkdownUtil
             string scriptName = $"/{type.Name}.cs";
             scriptPath = UnityEditor.AssetDatabase.GetAllAssetPaths().FirstOrDefault(p => p.EndsWith(scriptName) && UnityEditor.AssetDatabase.GetMainAssetTypeAtPath(p) == typeof(UnityEditor.MonoScript));
 #else
-            scriptPath = "/Assets/CScripts/Examples";//string.Empty;
+            scriptPath = $"/Assets/CScripts/Examples/{type.Name}.cs";   //string.Empty;
 #endif
             //return scriptPath != null ? $"[![#](/pic/code.png)](/{scriptPath})" : "#";    //use picture or emoji
             return scriptPath != null ? $"[:page_facing_up:](/{scriptPath})" : "#";
