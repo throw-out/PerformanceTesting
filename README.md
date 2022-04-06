@@ -61,4 +61,4 @@
 | IDE支持        | [vscode](https://code.visualstudio.com/) 丶[rider](https://www.jetbrains.com/rider/) | [EmmyLua](https://github.com/EmmyLua)丶[LuaPanda](https://github.com/Tencent/LuaPanda)丶[LuaPerfect](https://github.com/jiangzheng1986/LuaPerfect)               |
 | 代码提示       | 完整类型定义                   |  局部类型推断+手动注释          |
 | 代码规范       | eslint丶tslint等              |  人工review                    |
-| 第三方库       | 得益于浏览器丶nodejs的普及, [npm](https://www.npmjs.com/)上拥有大量可用es库 | 有限支持      |
+| 第三方库       | 得益于浏览器丶nodejs的普及, [npm](https://www.npmjs.com/)上拥有大量可用es库 | 自行编译丶扩展(有限支持)     |
