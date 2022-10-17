@@ -1,0 +1,5 @@
+{
+    "dependencies": {
+        "com.tencent.puerts.core": "file:../package"
+    }
+}

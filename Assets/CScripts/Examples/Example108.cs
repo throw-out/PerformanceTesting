@@ -41,7 +41,7 @@ payload;
             func(obj, i % 3f, i % 4f, i % 5f);
         }
         var result = obj.rotation;
-        UnityEngine.Object.Destroy(obj.gameObject);
+        UnityEngine.Object.DestroyImmediate(obj.gameObject);
 
         return result;
     }
@@ -61,7 +61,7 @@ return payload;
             func(obj, i % 3f, i % 4f, i % 5f);
         }
         var result = obj.rotation;
-        UnityEngine.Object.Destroy(obj.gameObject);
+        UnityEngine.Object.DestroyImmediate(obj.gameObject);
 
         return result;
     }

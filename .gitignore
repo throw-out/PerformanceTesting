@@ -3,7 +3,6 @@ Build
 Library
 Logs
 obj
-Packages
 Temp
 *.sln
 *.csproj
@@ -18,4 +17,5 @@ Assets/XLua/Gen/*Wrap.cs
 Assets/XLua/Gen/*Wrap.cs.meta
 Assets/XLua/Gen/XLuaGenAutoRegister.cs
 Assets/XLua/Gen/XLuaGenAutoRegister.cs.meta
+node_modules
 

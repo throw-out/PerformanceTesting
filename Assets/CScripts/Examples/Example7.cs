@@ -23,7 +23,7 @@ public class Example7 : IExecute
             Example7.Payload(obj);
         }
         var result = obj.rotation;
-        Object.Destroy(obj.gameObject);
+        Object.DestroyImmediate(obj.gameObject);
 
         return result;
     }
@@ -38,7 +38,7 @@ for(let i = 0; i < {0}; i++){{
     Example.Payload(obj);
 }}
 var result = obj.rotation;
-require('csharp').UnityEngine.Object.Destroy(obj.gameObject);
+require('csharp').UnityEngine.Object.DestroyImmediate(obj.gameObject);
 
 result;
 ", count));
@@ -56,7 +56,7 @@ for i = 0,{0} do
     Example.Payload(obj);
 end
 local result = obj.rotation;
-CS.UnityEngine.Object.Destroy(obj.gameObject);
+CS.UnityEngine.Object.DestroyImmediate(obj.gameObject);
 
 return result;
 ", count - 1));
