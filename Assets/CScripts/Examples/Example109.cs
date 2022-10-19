@@ -42,7 +42,7 @@ payload;
             func(obj, eulers);
         }
         var result = obj.rotation;
-        UnityEngine.Object.Destroy(obj.gameObject);
+        UnityEngine.Object.DestroyImmediate(obj.gameObject);
 
         return result;
     }
@@ -63,7 +63,7 @@ return payload;
             func(obj, eulers);
         }
         var result = obj.rotation;
-        UnityEngine.Object.Destroy(obj.gameObject);
+        UnityEngine.Object.DestroyImmediate(obj.gameObject);
 
         return result;
     }

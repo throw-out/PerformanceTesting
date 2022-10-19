@@ -10,26 +10,18 @@
     {
         public static void AutoUsing(this JsEnv jsEnv)
         {
-            jsEnv.UsingAction<Puerts.JsEnv, Puerts.ILoader, System.Int32>();
             jsEnv.UsingAction<System.Int32>();
             jsEnv.UsingAction<System.Int32, System.Int32, System.Single>();
-            jsEnv.UsingAction<System.IntPtr, Puerts.ISetValueToJs, System.IntPtr, System.Object>();
             jsEnv.UsingAction<System.IntPtr, System.Int32, System.Object>();
-            jsEnv.UsingAction<System.IntPtr, System.Int64>();
-            jsEnv.UsingAction<System.IntPtr, System.IntPtr, System.IntPtr, System.Int32>();
             jsEnv.UsingAction<System.IntPtr, System.Object>();
             jsEnv.UsingAction<UnityEngine.Transform, System.Single, System.Single, System.Single>();
             jsEnv.UsingAction<UnityEngine.Transform, UnityEngine.Vector3>();
             jsEnv.UsingFunc<System.Int32, System.Int32, System.Single, System.Single>();
-            jsEnv.UsingFunc<System.IntPtr, Puerts.IGetValueFromJs, System.IntPtr, System.Boolean, System.Object>();
             jsEnv.UsingFunc<System.IntPtr, System.Int32>();
             jsEnv.UsingFunc<System.IntPtr, System.Int32, System.Boolean>();
             jsEnv.UsingFunc<System.IntPtr, System.Int32, System.Object>();
             jsEnv.UsingFunc<System.IntPtr, System.Int32, System.Object, System.Object>();
-            jsEnv.UsingFunc<System.IntPtr, System.IntPtr, System.Int32, System.Int64, System.IntPtr>();
-            jsEnv.UsingFunc<System.IntPtr, System.IntPtr, System.Int32, System.Object>();
             jsEnv.UsingFunc<System.Single>();
-            jsEnv.UsingFunc<System.String, System.Int32, System.String>();
         }
 
         public static void UsingAction(this JsEnv jsEnv, params string[] args)
