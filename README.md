@@ -4,6 +4,21 @@
 # 简介
  Unity游戏引擎, C#原生丶puerts脚本丶xLua脚本性能测试与横向对比
 
+# 初始化
+使用node命令行, 快速安装指定版本的[puerts](https://github.com/Tencent/puerts/releases)到指定目录:
+```
+node ./.script/get-puerts.mjs --version 1.4.0-rc.2 --path package
+```
+使用node命令行, 快速启动测试:
+```
+node ./.script/run-test-cli.mjs --unity `unity editor install absolute path` --pkg package
+
+//例:
+node ./.script/run-test-cli.mjs --unity /****/_UNITY_/2020.3.34f1c2/Unity.app/Contents/MacOS/Unity --pkg package
+
+node ./.script/run-test-cli.mjs --unity D:/****/Unity/2020.3.34f1c2/Editor/Unity.exe --pkg package
+```
+
 # 测试平台
  * 基础
  - [x] 反射调用-Editor
