@@ -4,6 +4,9 @@ Library
 Logs
 obj
 Temp
+package
+Packages/packages-lock.json
+ProjectSettings
 *.sln
 *.csproj
 STATES.md
