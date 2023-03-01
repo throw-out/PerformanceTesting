@@ -41,13 +41,15 @@ public class Example6 : IExecute
     {
         object[] result = env.DoString(string.Format(
 @"
-local Example = CS.Example6;
-local result = 0;
-for i = 0,{0} do
-    result = result + Example.Payload();
-end
+return (function()
+    local Example = CS.Example6;
+    local result = 0;
+    for i = 0,{0} do
+        result = result + Example.Payload();
+    end
 
-return result;
+    return result;
+end)();
 ", count - 1));
 
         return result != null && result.Length > 0 ? result[0] : null;

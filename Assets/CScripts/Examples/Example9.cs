@@ -51,17 +51,19 @@ public class Example9 : IExecute
     {
         object[] result = env.DoString(string.Format(
 @"
-local Example = CS.Example9;
+return (function()
+    local Example = CS.Example9;
 
-local obj = CS.UnityEngine.GameObject().transform;
-local eulers = CS.UnityEngine.Vector3(1, 2, 3);
-for i = 0,{0} do
-    Example.Payload(obj, eulers);
-end
-local result = obj.rotation;
-CS.UnityEngine.Object.DestroyImmediate(obj.gameObject);
+    local obj = CS.UnityEngine.GameObject().transform;
+    local eulers = CS.UnityEngine.Vector3(1, 2, 3);
+    for i = 0,{0} do
+        Example.Payload(obj, eulers);
+    end
+    local result = obj.rotation;
+    CS.UnityEngine.Object.DestroyImmediate(obj.gameObject);
 
-return result;
+    return result;
+end)()
 ", count - 1));
 
         return result != null && result.Length > 0 ? result[0] : null;

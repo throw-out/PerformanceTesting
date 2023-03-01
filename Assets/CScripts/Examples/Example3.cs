@@ -38,10 +38,12 @@ public class Example3 : IExecute
     {
         env.DoString(string.Format(
 @"
-local Example = CS.Example3;
-for i = 1,{0} do
-    Example.Payload(i);
-end
+(function()
+    local Example = CS.Example3;
+    for i = 1,{0} do
+        Example.Payload(i);
+    end
+end)()
 ", count));
         return null;
     }
