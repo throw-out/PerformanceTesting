@@ -30,18 +30,18 @@ public class Example7 : IExecute
     public object RunJS(JsEnv env, int count)
     {
         var result = env.Eval<Quaternion>(string.Format(
-@"
-var Example = require('csharp').Example7;
+@"(function() {{
+    var Example = require('csharp').Example7;
 
-var obj = new (require('csharp').UnityEngine.GameObject)().transform;
-for(let i = 0; i < {0}; i++){{
-    Example.Payload(obj);
-}}
-var result = obj.rotation;
-require('csharp').UnityEngine.Object.DestroyImmediate(obj.gameObject);
+    var obj = new (require('csharp').UnityEngine.GameObject)().transform;
+    for(let i = 0; i < {0}; i++){{
+        Example.Payload(obj);
+    }}
+    var result = obj.rotation;
+    require('csharp').UnityEngine.Object.DestroyImmediate(obj.gameObject);
 
-result;
-", count));
+    return result;
+}})()", count));
 
         return result;
     }
