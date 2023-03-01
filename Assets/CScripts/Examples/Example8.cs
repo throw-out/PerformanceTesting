@@ -31,18 +31,18 @@ public class Example8 : IExecute
     public object RunJS(JsEnv env, int count)
     {
         var result = env.Eval<Quaternion>(string.Format(
- @"
-var Example = require('csharp').Example8;
+ @"(function() {{
+    var Example = require('csharp').Example8;
 
-var obj = new (require('csharp').UnityEngine.GameObject)().transform;
-for(let i = 0; i < {0}; i++){{
-    Example.Payload(obj, i % 3, i % 4, i % 5);
-}}
-var result = obj.rotation;
-require('csharp').UnityEngine.Object.DestroyImmediate(obj.gameObject);
+    var obj = new (require('csharp').UnityEngine.GameObject)().transform;
+    for(let i = 0; i < {0}; i++){{
+        Example.Payload(obj, i % 3, i % 4, i % 5);
+    }}
+    var result = obj.rotation;
+    require('csharp').UnityEngine.Object.DestroyImmediate(obj.gameObject);
 
-result;
-", count));
+    return result;
+}})()", count));
         return result;
     }
     public object RunLua(LuaEnv env, int count)

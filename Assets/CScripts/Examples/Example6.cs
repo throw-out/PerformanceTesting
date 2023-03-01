@@ -26,15 +26,15 @@ public class Example6 : IExecute
     public object RunJS(JsEnv env, int count)
     {
         float result = env.Eval<float>(string.Format(
-@"
-var Example = require('csharp').Example6;
-var result = 0;
-for(let i = 0; i < {0}; i++){{
-    result += Example.Payload();
-}}
+@"(function() {{
+    var Example = require('csharp').Example6;
+    var result = 0;
+    for(let i = 0; i < {0}; i++){{
+        result += Example.Payload();
+    }}
 
-result;
-", count));
+    return result;
+}})()", count));
         return result;
     }
     public object RunLua(LuaEnv env, int count)

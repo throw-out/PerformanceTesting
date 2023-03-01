@@ -28,12 +28,12 @@ public class Example2 : IExecute
     public object RunJS(JsEnv env, int count)
     {
         env.Eval(string.Format(
-@"
-var Example = new (require('csharp').Example2)();
-for(let i = 0; i < {0}; i++){{
-    Example.Payload();
-}}
-", count));
+@"(function() {{
+    var Example = new (require('csharp').Example2)();
+    for(let i = 0; i < {0}; i++){{
+        Example.Payload();
+    }}
+}})()", count));
         return null;
     }
 
