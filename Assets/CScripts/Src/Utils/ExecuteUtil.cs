@@ -1,8 +1,9 @@
 using System;
-using System.Diagnostics;
+using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Puerts;
-using UnityEngine.Profiling;
+using UnityEngine;
 using XLua;
 
 public static class ExecuteUtil
@@ -10,7 +11,9 @@ public static class ExecuteUtil
     public static ExecuteBase[] GetExecutes()
     {
         return (from assembly in AppDomain.CurrentDomain.GetAssemblies()
+#if UNITY_EDITOR
                 where !(assembly.ManifestModule is System.Reflection.Emit.ModuleBuilder)
+#endif
                 from type in assembly.GetExportedTypes()
                 where typeof(ExecuteBase).IsAssignableFrom(type) && type.IsDefined(typeof(TestAttribute), false)
                 orderby (type.GetCustomAttributes(typeof(TestAttribute), false).FirstOrDefault() as TestAttribute).Priority descending
@@ -128,7 +131,7 @@ public static class ExecuteUtil
         private readonly bool checkMemory;
         private long beforeAllocatedMemory;
         private long beforeTotalMemory;
-        private Stopwatch w;
+        private System.Diagnostics.Stopwatch w;
 
         public long ElapsedMilliseconds => w?.ElapsedMilliseconds ?? -1;
         public long AllocatedMemory { get; private set; } = -1;
@@ -144,10 +147,10 @@ public static class ExecuteUtil
             if (checkMemory)
             {
                 UnityEngine.Scripting.GarbageCollector.GCMode = UnityEngine.Scripting.GarbageCollector.Mode.Disabled;
-                beforeAllocatedMemory = Profiler.GetTotalAllocatedMemoryLong();
+                beforeAllocatedMemory = UnityEngine.Profiling.Profiler.GetTotalAllocatedMemoryLong();
                 beforeTotalMemory = GC.GetTotalMemory(false);
             }
-            w = Stopwatch.StartNew();
+            w = System.Diagnostics.Stopwatch.StartNew();
         }
         public void Stop()
         {
@@ -157,7 +160,7 @@ public static class ExecuteUtil
             {
                 if (beforeAllocatedMemory > 0)
                 {
-                    AllocatedMemory = Profiler.GetTotalAllocatedMemoryLong() - beforeAllocatedMemory;
+                    AllocatedMemory = UnityEngine.Profiling.Profiler.GetTotalAllocatedMemoryLong() - beforeAllocatedMemory;
                 }
                 if (beforeTotalMemory > 0)
                 {

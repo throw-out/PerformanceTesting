@@ -1,29 +1,12 @@
-using System;
 using System.IO;
 using UnityEngine;
 using System.Collections;
-using System.Linq;
-using UnityEditor;
 
 public class CommandLineTests
 {
-    [MenuItem(("PerformanceTest/Gen Code"))]
-    public static void GenCode()
-    {
-        {
-            const string typeName = "CSObjectWrapEditor.Generator";
-            var type = (from _assembly in AppDomain.CurrentDomain.GetAssemblies()
-                        let _type = _assembly.GetType(typeName, false)
-                        where _type != null
-                        select _type).FirstOrDefault();
-            if (type != null)
-            {
-                type.GetMethod("GenAll").Invoke(null, new object[] { });
-            }
-        }
-    }
-
-    [MenuItem("PerformanceTest/run Test")]
+#if UNITY_EDITOR
+    [UnityEditor.MenuItem("PerformanceTest/run Test")]
+#endif
     public static void RunTest()
     {
         Tester tester = new Tester(
@@ -40,4 +23,5 @@ public class CommandLineTests
 
         while (enumerator.MoveNext()) { }
     }
+
 }
