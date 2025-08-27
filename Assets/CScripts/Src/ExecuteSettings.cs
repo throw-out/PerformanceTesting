@@ -11,10 +11,6 @@ public class ExecuteSettings
     /// </summary>
     public bool CheckMemory;
     /// <summary>
-    /// 预执行编译
-    /// </summary>
-    public bool PreExecute;
-    /// <summary>
     /// 使用独立的env环境
     /// </summary>
     public bool Exclusive;

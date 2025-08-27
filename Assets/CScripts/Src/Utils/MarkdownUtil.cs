@@ -79,8 +79,6 @@ public static class MarkdownUtil
         builder.AppendLine();
         builder.AppendFormat("| CheckMemory     | {0}               |", settings.CheckMemory);
         builder.AppendLine();
-        builder.AppendFormat("| PreExecute      | {0}               |", settings.PreExecute);
-        builder.AppendLine();
         builder.AppendFormat("| Exclusive       | {0}               |", settings.Exclusive);
         builder.AppendLine();
         builder.AppendFormat("| AutoGC          | {0}               |", settings.AutoGC);

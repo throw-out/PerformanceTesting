@@ -18,7 +18,6 @@ public class GUITests : MonoBehaviour
     public Button m_StartBtn;
     public Button m_StopBtn;
     public Toggle m_CheckMemory;
-    public Toggle m_PreExecute;
     public Toggle m_Exclusive;
     public Toggle m_AutoGC;
     public Slider m_Progress;
@@ -79,7 +78,6 @@ public class GUITests : MonoBehaviour
         var settings = new ExecuteSettings()
         {
             CheckMemory = m_CheckMemory.isOn,
-            PreExecute = m_PreExecute.isOn,
             Exclusive = m_Exclusive.isOn,
             AutoGC = m_AutoGC.isOn,
         };

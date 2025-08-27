@@ -23,11 +23,6 @@ public static class ExecuteUtil
         ExecuteData data;
         try
         {
-            if (settings.PreExecute)
-            {
-                execute.RunCSharp(1);
-            }
-
             Watcher w = Watcher.StartNew(settings.CheckMemory);
             var ret = execute.RunCSharp(count);
             w.Stop();
@@ -54,11 +49,6 @@ public static class ExecuteUtil
         ExecuteData data;
         try
         {
-            if (settings.PreExecute)
-            {
-                execute.RunPuertsWithJs(env, 1);
-            }
-
             Watcher w = Watcher.StartNew(settings.CheckMemory);
             var ret = execute.RunPuertsWithJs(env, count);
             w.Stop();
@@ -85,11 +75,6 @@ public static class ExecuteUtil
         ExecuteData data;
         try
         {
-            if (settings.PreExecute)
-            {
-                execute.RunPuertsWithLua(env, 1);
-            }
-
             Watcher w = Watcher.StartNew(settings.CheckMemory);
             var ret = execute.RunPuertsWithLua(env, count);
             w.Stop();
@@ -116,11 +101,6 @@ public static class ExecuteUtil
         ExecuteData data;
         try
         {
-            if (settings.PreExecute)
-            {
-                execute.RunXLua(env, 1);
-            }
-
             Watcher w = Watcher.StartNew(settings.CheckMemory);
             var ret = execute.RunXLua(env, count);
             w.Stop();
