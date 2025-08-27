@@ -30,11 +30,19 @@ public class GUITests : MonoBehaviour
     {
         tester = new Tester(
             repeatTimePerSuite,
-#if UNITY_EDITOR || UNITY_STANDALONE_WIN
-            Path.Combine(Application.dataPath, "../STATES.md")
+#if UNITY_EDITOR
+            Path.GetDirectoryName(Application.dataPath)
+#elif UNITY_STANDALONE_WIN
+            Application.dataPath
 #else
-            Path.Combine(Application.persistentDataPath, "./STATES.md")
+            Application.persistentDataPath
 #endif
+#if UNITY_EDITOR
+            , false
+#else
+            , true
+#endif
+            , true
         );
         tester.OnLogInfo += (string newInfo) =>
         {

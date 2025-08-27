@@ -9,6 +9,7 @@ using XLua;
 /// </summary>
 [Test]
 [TestGroup("ParameterCompare")]
+[TestChart(0)]
 public class Example4 : ExecuteBase1
 {
     public override bool Static => true;

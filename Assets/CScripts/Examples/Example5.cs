@@ -8,6 +8,7 @@ using XLua;
 /// 返回值: 值类型
 /// </summary>
 [Test]
+[TestChart(0)]
 public class Example5 : ExecuteBase1
 {
     public override bool Static => true;

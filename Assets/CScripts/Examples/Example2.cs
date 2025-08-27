@@ -9,6 +9,7 @@ using XLua;
 /// </summary>
 [Test]
 [TestGroup("Static vs Instance")]
+[TestChart(0)]
 public class Example2 : ExecuteBase1
 {
     public override bool Static => false;

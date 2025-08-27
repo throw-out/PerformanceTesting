@@ -10,6 +10,7 @@ using XLua;
 /// 返回值: UnityEngine.Quaternion
 /// </summary>
 [Test(100)]
+[TestChart(100)]
 public class Example108 : ExecuteBase100
 {
     [CSharpCallLua]

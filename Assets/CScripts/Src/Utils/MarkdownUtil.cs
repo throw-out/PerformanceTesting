@@ -226,7 +226,24 @@ public static class MarkdownUtil
         return builder.ToString();
     }
 
+    public static string GenerateCharts(IEnumerable<string> chartFiles)
+    {
+        StringBuilder builder = new StringBuilder();
 
+        builder.AppendLine();
+        builder.Append("# 图表数据");
+
+        builder.AppendLine();
+        builder.Append("**以下图表使用[QuickChart](https://quickchart.io/)进行生成, 感谢[QuickChart open API](https://quickchart.io/)**");
+        builder.AppendLine();
+
+        foreach (var chartFile in chartFiles)
+        {
+            builder.AppendLine();
+            builder.AppendFormat("![](/{0})", chartFile);
+        }
+        return builder.ToString();
+    }
     struct TestGroupData
     {
         public Type Type;

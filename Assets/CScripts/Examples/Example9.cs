@@ -10,6 +10,7 @@ using XLua;
 /// </summary>
 [Test]
 [TestGroup("xyz vs Vector3")]
+[TestChart(0)]
 public class Example9 : ExecuteBase1
 {
     public override bool Static => true;

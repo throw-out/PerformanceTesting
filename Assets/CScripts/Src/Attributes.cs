@@ -28,3 +28,13 @@ public sealed class TestGroupAttribute : System.Attribute
         this.CompareDataCount = compareDataCount;
     }
 }
+
+[System.AttributeUsage(System.AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
+public sealed class TestChartAttribute : System.Attribute
+{
+    public int Id { get; private set; }
+    public TestChartAttribute(int id)
+    {
+        this.Id = id;
+    }
+}

@@ -14,13 +14,17 @@ public class Tester
     {
         return isRunning;
     }
-    private int[] repeatTimePerSuite;
-    private string statesOutputPath;
+    private readonly int[] repeatTimePerSuite;
+    private readonly string rootPath;
+    private readonly bool appendTimestamp;
+    private readonly bool saveChart;
 
-    public Tester(int[] repeatTimePerSuite, string statesOutputPath)
+    public Tester(int[] repeatTimePerSuite, string rootPath, bool appendTimestamp = false, bool saveChart = false)
     {
         this.repeatTimePerSuite = repeatTimePerSuite;
-        this.statesOutputPath = statesOutputPath;
+        this.rootPath = rootPath;
+        this.appendTimestamp = appendTimestamp;
+        this.saveChart = saveChart;
     }
 
     public void StopTest()
@@ -39,7 +43,6 @@ public class Tester
             Debug.LogError("Editor环境下不允许暂停GC, 无法统计内存数据");
         }
 #endif
-
         ExecuteBase[] executes = ExecuteUtil.GetExecutes();
         if (executes == null || executes.Length == 0)
         {
@@ -138,20 +141,53 @@ public class Tester
         }
         isRunning = false;
         sw.Stop();
-        AppendLog(@"
-test completed! total duration = {0}ms
-            
-states file write to: {1}",
-            sw.ElapsedMilliseconds,
-            statesOutputPath
-        );
         SetProgress(total, total);
+        AppendLog("\n\ntest completed! total duration = {0}ms", sw.ElapsedMilliseconds);
 
-        if (File.Exists(statesOutputPath))
+        //保存state markdown文件
+        DateTime saveTime = DateTime.Now;
+        string statePath = Path.Combine(rootPath, appendTimestamp ? $"STATES_{saveTime:yyyyMMddHHmmss}.md" : $"STATES.md");
+        AppendLog("\nstates file write to: {0}", statePath);
+        if (File.Exists(statePath))
         {
-            File.Delete(statesOutputPath);
+            File.Delete(statePath);
         }
-        File.WriteAllText(statesOutputPath, MarkdownUtil.Generate(s, statesList));
+        File.WriteAllText(statePath, MarkdownUtil.Generate(s, statesList));
+
+        //保存chart柱状图
+        if (saveChart)
+        {
+            List<string> charsFiles = new List<string>();
+            ChartUtil.Generate(statesList,
+                (id, url) =>
+                {
+                    AppendLog($"\n\nrequrest(chart-{id}): " + url);
+                },
+                (id, data) =>
+                {
+                    if (data == null)
+                    {
+                        AppendLog($"\nrequest failure!!!");
+                        return;
+                    }
+                    string fileName = appendTimestamp ? $"CHART_{id}_{saveTime:yyyyMMddHHmmss}.png" : $"CHART_{id}.png";
+                    charsFiles.Add(fileName);
+
+                    var path = Path.Combine(rootPath, fileName);
+                    AppendLog($"\n\nwrite to: {path}");
+                    if (File.Exists(path))
+                    {
+                        File.Delete(path);
+                    }
+                    File.WriteAllBytes(path, data);
+                },
+                () =>
+                {
+                    if (charsFiles.Count == 0)
+                        return;
+                    File.AppendAllText(statePath, MarkdownUtil.GenerateCharts(charsFiles));
+                });
+        }
     }
 
     public event Action<string> OnLogInfo;

@@ -9,6 +9,7 @@ using XLua;
 /// 返回值: 无
 /// </summary>
 [Test(100)]
+[TestChart(100)]
 public class Example101 : ExecuteBase100
 {
     [CSharpCallLua]

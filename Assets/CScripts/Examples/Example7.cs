@@ -9,6 +9,7 @@ using XLua;
 /// 返回值: UnityEngine.Quaternion
 /// </summary>
 [Test]
+[TestChart(0)]
 public class Example7 : ExecuteBase1
 {
     public override bool Static => true;

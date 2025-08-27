@@ -10,6 +10,7 @@ using XLua;
 [Test]
 [TestGroup("Static vs Instance", 1, Desc = "静态函数 vs 实例函数")]
 [TestGroup("ParameterCompare", 1, Desc = "无参数 vs 有参数")]
+[TestChart(0)]
 public class Example1 : ExecuteBase1
 {
     public override bool Static => true;
