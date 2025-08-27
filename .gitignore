@@ -6,7 +6,10 @@ obj
 Temp
 package
 Packages/packages-lock.json
-ProjectSettings
+ProjectSettings/*.json
+ProjectSettings/*.asset
+ProjectSettings/*.config
+ProjectSettings/Packages
 *.sln
 *.csproj
 STATES.md
@@ -21,4 +24,5 @@ Assets/XLua/Gen/*Wrap.cs.meta
 Assets/XLua/Gen/XLuaGenAutoRegister.cs
 Assets/XLua/Gen/XLuaGenAutoRegister.cs.meta
 node_modules
+UserSettings
 
