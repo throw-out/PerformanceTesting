@@ -6,29 +6,33 @@ using UnityEngine;
 
 public static class MarkdownUtil
 {
-    public static string Generate(IEnumerable<ExecuteStates> states)
+    public static string Generate(ExecuteSettings settings, IEnumerable<ExecuteStates> states)
     {
         StringBuilder builder = new StringBuilder();
 
         builder.AppendLine();
         builder.Append("# 软件版本");
         builder.Append(GetVersion());
+        builder.AppendLine();
 
         builder.AppendLine();
         builder.Append("# 系统环境");
-        builder.Append(GetEnvironment());
+        builder.Append(GetEnvironment(settings));
+        builder.AppendLine();
 
-        var groupTable = GetGroupTable(states);
+        var groupTable = GetGroupTable(settings, states);
         if (!string.IsNullOrEmpty(groupTable))
         {
             builder.AppendLine();
             builder.Append("# 数据对照");
             builder.Append(groupTable);
+            builder.AppendLine();
         }
 
         builder.AppendLine();
         builder.Append("# 所有数据");
-        builder.Append(FromatToTable(states));
+        builder.Append(FromatToTable(settings, states));
+        builder.AppendLine();
 
         return builder.ToString();
     }
@@ -42,12 +46,16 @@ public static class MarkdownUtil
         builder.AppendLine();
         builder.AppendFormat("| Unity           | {0}               |", Application.unityVersion);
         builder.AppendLine();
-        builder.AppendFormat("| puerts          | {0}               |", Puerts.PuertsDLL.GetLibVersion());
-        builder.AppendLine();
         builder.AppendFormat("| xLua            | {0}               |", XLua.LuaDLL.Lua.xlua_get_lib_version());
+        builder.AppendLine();
+        builder.AppendFormat("| puerts(lua)     | {0}               |", new Puerts.BackendLua().GetApiVersion());
+        builder.AppendLine();
+        builder.AppendFormat("| puerts(quickjs) | {0}               |", new Puerts.BackendQuickJS().GetApiVersion());
+        builder.AppendLine();
+        builder.AppendFormat("| puerts(v8)      | {0}               |", new Puerts.BackendV8().GetApiVersion());
         return builder.ToString();
     }
-    public static string GetEnvironment()
+    public static string GetEnvironment(ExecuteSettings settings)
     {
         StringBuilder builder = new StringBuilder();
         builder.AppendLine();
@@ -68,10 +76,18 @@ public static class MarkdownUtil
         builder.AppendFormat("| Editor          | {0}               |", Application.isEditor);          //是否为编辑器模式
         builder.AppendLine();
         builder.AppendFormat("| Date            | {0}               |", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));  //本地电脑时间
+        builder.AppendLine();
+        builder.AppendFormat("| CheckMemory     | {0}               |", settings.CheckMemory);
+        builder.AppendLine();
+        builder.AppendFormat("| PreExecute      | {0}               |", settings.PreExecute);
+        builder.AppendLine();
+        builder.AppendFormat("| Exclusive       | {0}               |", settings.Exclusive);
+        builder.AppendLine();
+        builder.AppendFormat("| AutoGC          | {0}               |", settings.AutoGC);
         return builder.ToString();
     }
 
-    public static string GetGroupTable(IEnumerable<ExecuteStates> states)
+    public static string GetGroupTable(ExecuteSettings settings, IEnumerable<ExecuteStates> states)
     {
         StringBuilder builder = new StringBuilder();
 
@@ -118,21 +134,18 @@ public static class MarkdownUtil
                     builder.AppendFormat(" | \t`{0}`", groupDesc);
                 }
                 builder.AppendLine();
-                builder.Append(FromatToTable(groupStates.Count > totalCompareCount ? groupStates.Skip(groupStates.Count - totalCompareCount) : groupStates));
+                builder.Append(FromatToTable(settings, groupStates.Count > totalCompareCount ? groupStates.Skip(groupStates.Count - totalCompareCount) : groupStates));
             }
         }
 
         return builder.ToString();
     }
-    public static string FromatToTable(IEnumerable<ExecuteStates> states)
+    public static string FromatToTable(ExecuteSettings settings, IEnumerable<ExecuteStates> states)
     {
-        Func<double, string> FormatDuration =
-            (duration) => duration >= 0 ? duration.ToString("f1") : "`fail`";
-        Func<object, string> FormatResult =
-            (result) => result != null ? result.ToString() : "`null`";
-        Func<CallTarget, string> FormatTarget =
-            (target) => Enum.GetName(typeof(CallTarget), target);
-        Func<Type, string> FormatScriptPath = (type) =>
+        static string FormatDuration(double duration) => duration >= 0 ? $"{duration:f1}ms" : "`fail`";
+        static string FormatResult(object result) => result != null ? result.ToString() : "`null`";
+        static string FormatTarget(ExecuteTarget target) => Enum.GetName(typeof(ExecuteTarget), target);
+        static string FormatScriptPath(Type type)
         {
             string scriptPath;
 #if UNITY_EDITOR
@@ -142,34 +155,74 @@ public static class MarkdownUtil
             scriptPath = $"/Assets/CScripts/Examples/{type.Name}.cs";   //string.Empty;
 #endif
             //return scriptPath != null ? $"[![#](/pic/code.png)](/{scriptPath})" : "#";    //use picture or emoji
-            return scriptPath != null ? $"[:page_facing_up:](/{scriptPath})" : "#";
-        };
+            //return scriptPath != null ? $"[:page_facing_up:](/{scriptPath})" : "#";
+            return scriptPath != null ? $"[{type.Name}](/{scriptPath})" : "#";
+        }
+        static string FormatMemorySize(long size)
+        {
+            if (size < 0)
+                return "-";
+            if (size <= 1024)
+                return $"{size}B";
+            double s = size / 1024d;
+            if (s <= 1024)
+                return $"{size:f2}KB";
+            s = size / 1024d;
+            return $"{size:f2}MB";
+        }
 
+        string[] keys = states.FirstOrDefault(s => s.Results != null && s.Results.Count > 0).Results?.Keys.ToArray();
+        if (keys == null || keys.Length == 0)
+            return string.Empty;
 
         StringBuilder builder = new StringBuilder();
+        builder.AppendLine();
+        builder.Append("| File      | Method    | Static    | Target    | Count     |");
+        builder.Append(string.Join("|", keys));
+        builder.Append("|");
 
         builder.AppendLine();
-        builder.Append("| File      | Method    | Static    | Target    | Call      | csharp(ms)| puerts(ms)| xLua(ms)  | csharpResult  | puertsResult  | xLuaResult    |");
-        builder.AppendLine();
-        builder.Append("| :----:    | :----     | :----:    | :----:    | :----:    | :----:    | :----:    | :----:    | :----:        | :----:        | :----:        |");
+        builder.Append("| :----:    | :----     | :----:    | :----:    | :----:    |");
+        builder.Append(string.Join("|", keys.Select(k => ":----:")));
+        builder.Append("|");
 
         foreach (var state in states)
         {
             builder.AppendLine();
             builder.AppendFormat(
-                       "| {0}       | {1}       | {2}       | {3}       | {4}       | {5}       | {6}       | {7}       | {8}           | {9}           | {10}          |",
+                       "| {0}       | {1}       | {2}       | {3}       | {4}       |",
                 FormatScriptPath(state.Type),
                 state.Method,
-                state.Static ? "√" : "×",
+                state.Static ? "Y" : "N",
                 FormatTarget(state.Target),
-                state.Count,
-                FormatDuration(state.CsInvoke.Duration),
-                FormatDuration(state.JsInvoke.Duration),
-                FormatDuration(state.LuaInvoke.Duration),
-                FormatResult(state.CsInvoke.Result),
-                FormatResult(state.JsInvoke.Result),
-                FormatResult(state.LuaInvoke.Result)
+                state.Count
             );
+
+            bool hasAnyResult = state.Results != null && keys.Any(key => state.Results.TryGetValue(key, out var data) && data.Result != null);
+            foreach (var key in keys)
+            {
+                ExecuteData data = default;
+                if (state.Results == null || !state.Results.TryGetValue(key, out data))
+                {
+                    data.Duration = -1f;
+                    data.Result = null;
+                }
+                builder.Append(FormatDuration(data.Duration));
+                if (settings.CheckMemory)
+                {
+                    builder.AppendFormat("<br>{0} / {1}",
+                        FormatMemorySize(data.TotalMemory),
+                        FormatMemorySize(data.Memory)
+                    );
+                }
+                if (hasAnyResult)
+                {
+                    builder.AppendFormat("<br>{0}",
+                        FormatResult(data.Result)
+                    );
+                }
+                builder.Append("|");
+            }
         }
 
         return builder.ToString();

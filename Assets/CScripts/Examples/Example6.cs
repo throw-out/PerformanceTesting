@@ -8,13 +8,13 @@ using XLua;
 /// 返回值: 值类型
 /// </summary>
 [Test]
-public class Example6 : IExecute
+public class Example6 : ExecuteBase1
 {
-    public bool Static => true;
-    public string Method => "float Payload();";
-    public CallTarget Target => CallTarget.ScriptCallCSharp;
+    public override bool Static => true;
+    public override string Method => "float Payload();";
+    public override ExecuteTarget Target => ExecuteTarget.ScriptCallCS;
 
-    public object RunCS(int count)
+    public override object RunCSharp(int count)
     {
         float result = 0f;
         for (var i = 0; i < count; i++)
@@ -23,25 +23,25 @@ public class Example6 : IExecute
         }
         return result;
     }
-    public object RunJS(JsEnv env, int count)
+    public override string GetJsCode(int count)
     {
-        float result = env.Eval<float>(string.Format(
+        return string.Format(
 @"(function() {{
-    var Example = require('csharp').Example6;
+    var Example = CS.Example6;
     var result = 0;
     for(let i = 0; i < {0}; i++){{
         result += Example.Payload();
     }}
 
     return result;
-}})()", count));
-        return result;
+}})()", count);
     }
-    public object RunLua(LuaEnv env, int count)
+    public override string GetLuaCode(int count)
     {
-        object[] result = env.DoString(string.Format(
+        return string.Format(
 @"
 return (function()
+    local CS = CS or require('csharp');
     local Example = CS.Example6;
     local result = 0;
     for i = 0,{0} do
@@ -50,9 +50,7 @@ return (function()
 
     return result;
 end)();
-", count - 1));
-
-        return result != null && result.Length > 0 ? result[0] : null;
+", count - 1);
     }
 
     public static float Payload()

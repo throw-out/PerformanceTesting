@@ -191,11 +191,6 @@ namespace XLua
             };
         }
 
-        public void AddChecker(Type type, ObjectCheck oc)
-        {
-            checkersMap[type] = oc;
-        }
-
         public ObjectCheck GetChecker(Type type)
         {
             if (type.IsByRef) type = type.GetElementType();
@@ -319,12 +314,7 @@ namespace XLua
 
         private object getBytes(RealStatePtr L, int idx, object target)
         {
-            if(LuaAPI.lua_type(L, idx) == LuaTypes.LUA_TSTRING)
-            {
-                return LuaAPI.lua_tobytes(L, idx);
-            }
-            object obj = translator.SafeGetCSObj(L, idx);
-            return (obj is RawObject) ? (obj as RawObject).Target : obj as byte[];
+            return LuaAPI.lua_type(L, idx) == LuaTypes.LUA_TSTRING ? LuaAPI.lua_tobytes(L, idx) : translator.SafeGetCSObj(L, idx) as byte[];
         }
 
         private object getIntptr(RealStatePtr L, int idx, object target)

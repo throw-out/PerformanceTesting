@@ -9,13 +9,13 @@ using XLua;
 /// </summary>
 [Test]
 [TestGroup("Static vs Instance")]
-public class Example2 : IExecute
+public class Example2 : ExecuteBase1
 {
-    public bool Static => false;
-    public string Method => "void Payload();";
-    public CallTarget Target => CallTarget.ScriptCallCSharp;
+    public override bool Static => false;
+    public override string Method => "void Payload();";
+    public override ExecuteTarget Target => ExecuteTarget.ScriptCallCS;
 
-    public object RunCS(int count)
+    public override object RunCSharp(int count)
     {
         var Example = new Example2();
         for (var i = 0; i < count; i++)
@@ -25,30 +25,29 @@ public class Example2 : IExecute
         return null;
     }
 
-    public object RunJS(JsEnv env, int count)
+    public override string GetJsCode(int count)
     {
-        env.Eval(string.Format(
+        return string.Format(
 @"(function() {{
-    var Example = new (require('csharp').Example2)();
+    var Example = new CS.Example2();
     for(let i = 0; i < {0}; i++){{
         Example.Payload();
     }}
-}})()", count));
-        return null;
+}})()", count);
     }
 
-    public object RunLua(LuaEnv env, int count)
+    public override string GetLuaCode(int count)
     {
-        env.DoString(string.Format(
+        return string.Format(
 @"
 (function()
+    local CS = CS or require('csharp');
     local Example = CS.Example2();
     for i = 1,{0} do
         Example:Payload();
     end
 end)()
-", count));
-        return null;
+", count);
     }
 
     public void Payload()

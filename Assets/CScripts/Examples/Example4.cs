@@ -9,13 +9,13 @@ using XLua;
 /// </summary>
 [Test]
 [TestGroup("ParameterCompare")]
-public class Example4 : IExecute
+public class Example4 : ExecuteBase1
 {
-    public bool Static => true;
-    public string Method => "void Payload(int, int, float);";
-    public CallTarget Target => CallTarget.ScriptCallCSharp;
+    public override bool Static => true;
+    public override string Method => "void Payload(int, int, float);";
+    public override ExecuteTarget Target => ExecuteTarget.ScriptCallCS;
 
-    public object RunCS(int count)
+    public override object RunCSharp(int count)
     {
         for (var i = 0; i < count; i++)
         {
@@ -23,29 +23,28 @@ public class Example4 : IExecute
         }
         return null;
     }
-    public object RunJS(JsEnv env, int count)
+    public override string GetJsCode(int count)
     {
-        env.Eval(string.Format(
+        return string.Format(
 @"(function() {{
-    var Example = require('csharp').Example4;
+    var Example = CS.Example4;
     for(let i = 0; i < {0}; i++){{
         Example.Payload(1, i + 1, i + 2);
     }}
-}})()", count));
-        return null;
+}})()", count);
     }
-    public object RunLua(LuaEnv env, int count)
+    public override string GetLuaCode(int count)
     {
-        env.DoString(string.Format(
+        return string.Format(
 @"
 (function()
+    local CS = CS or require('csharp');
     local Example = CS.Example4;
     for i = 1,{0} do
         Example.Payload(1, i + 1, i + 2);
     end
 end)()
-", count));
-        return null;
+", count);
     }
 
     public static void Payload(int param1, int param2, float param3)

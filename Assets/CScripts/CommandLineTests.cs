@@ -13,45 +13,12 @@ public class CommandLineTests
         {
             const string typeName = "CSObjectWrapEditor.Generator";
             var type = (from _assembly in AppDomain.CurrentDomain.GetAssemblies()
-                let _type = _assembly.GetType(typeName, false)
-                where _type != null
-                select _type).FirstOrDefault();
+                        let _type = _assembly.GetType(typeName, false)
+                        where _type != null
+                        select _type).FirstOrDefault();
             if (type != null)
             {
-                type.GetMethod("GenAll").Invoke(null, new object[] {});
-            }
-        }
-        { // old puerts
-            const string typeName = "Puerts.Editor.Generator.Menu";
-            var type = (from _assembly in AppDomain.CurrentDomain.GetAssemblies()
-                let _type = _assembly.GetType(typeName, false)
-                where _type != null
-                select _type).FirstOrDefault();
-            if (type != null)
-            {
-                type.GetMethod("GenerateCode").Invoke(null, new object[] {});
-            }
-        }
-        { // new puerts
-            const string typeName = "Puerts.Editor.Generator.UnityMenu";
-            var type = (from _assembly in AppDomain.CurrentDomain.GetAssemblies()
-                let _type = _assembly.GetType(typeName, false)
-                where _type != null
-                select _type).FirstOrDefault();
-            if (type != null)
-            {
-                type.GetMethod("GenerateCode").Invoke(null, new object[] {});
-            }
-        }
-        {
-            const string typeName = "Puerts.Editor.GeneratorUsing";
-            var type = (from _assembly in AppDomain.CurrentDomain.GetAssemblies()
-                let _type = _assembly.GetType(typeName, false)
-                where _type != null
-                select _type).FirstOrDefault();
-            if (type != null)
-            {
-                type.GetMethod("GenerateUsingCode").Invoke(null, new object[] {});
+                type.GetMethod("GenAll").Invoke(null, new object[] { });
             }
         }
     }
@@ -67,9 +34,9 @@ public class CommandLineTests
             Path.Combine(Application.persistentDataPath, "./STATES.md")
 #endif
         );
-        tester.OnInfoUpdate += (string info) => UnityEngine.Debug.Log(info);
+        tester.OnLogInfo += (string info) => UnityEngine.Debug.Log(info);
 
-        IEnumerator enumerator = tester.StartTest();
+        IEnumerator enumerator = tester.StartTest(ExecuteSettings.Default);
 
         while (enumerator.MoveNext()) { }
     }

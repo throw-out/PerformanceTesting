@@ -17,8 +17,8 @@ public static class XLuaConfig
             var exampleTypes = from assembly in AppDomain.CurrentDomain.GetAssemblies()
                                where !(assembly.ManifestModule is System.Reflection.Emit.ModuleBuilder)
                                from type in assembly.GetExportedTypes()
-                               where typeof(IExecute).IsAssignableFrom(type) && type.IsDefined(typeof(TestAttribute), false)
-                               orderby (type.GetCustomAttributes(typeof(TestAttribute), false).FirstOrDefault() as TestAttribute).priority descending
+                               where typeof(ExecuteBase).IsAssignableFrom(type) && type.IsDefined(typeof(TestAttribute), false)
+                               orderby (type.GetCustomAttributes(typeof(TestAttribute), false).FirstOrDefault() as TestAttribute).Priority descending
                                select type;
 
             string[] customAssemblys = new string[] {
@@ -27,9 +27,7 @@ public static class XLuaConfig
             var delegateTypes = (from assembly in customAssemblys.Select(s => Assembly.Load(s))
                                  where !(assembly.ManifestModule is System.Reflection.Emit.ModuleBuilder)
                                  from type in assembly.GetExportedTypes()
-                                 where typeof(Delegate).IsAssignableFrom(type) &&
-                                    type != typeof(Puerts.JsEnv.JsEnvCreateCallback) &&
-                                    type != typeof(Puerts.JsEnv.JsEnvDisposeCallback)
+                                 where typeof(Delegate).IsAssignableFrom(type)
                                  select type);
 
             return exampleTypes

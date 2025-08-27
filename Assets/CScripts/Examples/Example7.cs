@@ -9,13 +9,13 @@ using XLua;
 /// 返回值: UnityEngine.Quaternion
 /// </summary>
 [Test]
-public class Example7 : IExecute
+public class Example7 : ExecuteBase1
 {
-    public bool Static => true;
-    public string Method => "Quaternion Payload(Transform);";
-    public CallTarget Target => CallTarget.ScriptCallCSharp;
+    public override bool Static => true;
+    public override string Method => "Quaternion Payload(Transform);";
+    public override ExecuteTarget Target => ExecuteTarget.ScriptCallCS;
 
-    public object RunCS(int count)
+    public override object RunCSharp(int count)
     {
         var obj = new GameObject().transform;
         for (var i = 0; i < count; i++)
@@ -27,29 +27,28 @@ public class Example7 : IExecute
 
         return result;
     }
-    public object RunJS(JsEnv env, int count)
+    public override string GetJsCode(int count)
     {
-        var result = env.Eval<Quaternion>(string.Format(
+        return string.Format(
 @"(function() {{
-    var Example = require('csharp').Example7;
+    var Example = CS.Example7;
 
-    var obj = new (require('csharp').UnityEngine.GameObject)().transform;
+    var obj = new CS.UnityEngine.GameObject().transform;
     for(let i = 0; i < {0}; i++){{
         Example.Payload(obj);
     }}
     var result = obj.rotation;
-    require('csharp').UnityEngine.Object.DestroyImmediate(obj.gameObject);
+    CS.UnityEngine.Object.DestroyImmediate(obj.gameObject);
 
     return result;
-}})()", count));
-
-        return result;
+}})()", count);
     }
-    public object RunLua(LuaEnv env, int count)
+    public override string GetLuaCode(int count)
     {
-        object[] result = env.DoString(string.Format(
+        return string.Format(
 @"
 return (function()
+    local CS = CS or require('csharp');
     local Example = CS.Example7;
 
     local obj = CS.UnityEngine.GameObject().transform;
@@ -61,9 +60,7 @@ return (function()
 
     return result;
 end)();
-", count - 1));
-
-        return result != null && result.Length > 0 ? result[0] : null;
+", count - 1);
     }
 
     public static void Payload(Transform transform)

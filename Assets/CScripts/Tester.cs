@@ -2,77 +2,64 @@ using System;
 using Puerts;
 using XLua;
 using System.IO;
-using UnityEngine;
-using System.Text;
-using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
+using Debug = UnityEngine.Debug;
 
-public class Tester 
+public class Tester
 {
-    private JsEnv jsEnv;
-    private LuaEnv luaEnv;
-    private bool isTesting;
-    public bool IsTesting() 
+    private bool isRunning;
+    public bool IsRunning()
     {
-        return isTesting;
+        return isRunning;
     }
     private int[] repeatTimePerSuite;
     private string statesOutputPath;
 
-    public Tester(int[] repeatTimePerSuite, string statesOutputPath) {
-        jsEnv = new JsEnv();
-        luaEnv = new LuaEnv();
-        this.AutoUsing(jsEnv);
+    public Tester(int[] repeatTimePerSuite, string statesOutputPath)
+    {
         this.repeatTimePerSuite = repeatTimePerSuite;
         this.statesOutputPath = statesOutputPath;
     }
 
-    private void AutoUsing(JsEnv env)
+    public void StopTest()
     {
-        const string typeName = "PuertsStaticWrap.AutoStaticCodeUsing";
-        var type = (from _assembly in AppDomain.CurrentDomain.GetAssemblies()
-                    let _type = _assembly.GetType(typeName, false)
-                    where _type != null
-                    select _type).FirstOrDefault();
-        if (type != null)
+        isRunning = false;
+        AppendLog("\b test stopped");
+    }
+
+    public IEnumerator StartTest(ExecuteSettings s)
+    {
+        isRunning = true;
+#if UNITY_EDITOR
+        if (s.CheckMemory)
         {
-            type.GetMethod("AutoUsing").Invoke(null, new object[] { env });
+            s.CheckMemory = false;
+            Debug.LogError("Editor环境下不允许暂停GC, 无法统计内存数据");
         }
-    }
+#endif
 
-    public void Tick() {
-        jsEnv.Tick();
-        luaEnv.Tick();
-    }
-
-    ~Tester() {
-        jsEnv.Dispose();
-        luaEnv.Dispose();
-    }
-
-    public void StopTest() {
-        isTesting = false;
-        appendTestInfo("\b test stopped");
-    }
-
-    public IEnumerator StartTest() 
-    {
-        IExecute[] executes = ExecuteUtil.GetExecutes();
+        ExecuteBase[] executes = ExecuteUtil.GetExecutes();
         if (executes == null || executes.Length == 0)
         {
-            appendTestInfo("\ntest instance not found");
-            isTesting = false;
+            AppendLog("\ntest instance not found");
+            isRunning = false;
             yield break;
         }
 
-        Timer totalDuration = new Timer();
+        Stopwatch sw = new Stopwatch();
+        sw.Start();
 
-        appendTestInfo("\nstart test: instance = " + executes.Length);
+        AppendLog("\nstart test: instance = " + executes.Length);
         yield return null;
 
+        s.Prepare(0);
+        //进度状态
+        int index = 0, total = executes.Length * repeatTimePerSuite.Length * 5;
+
         List<ExecuteStates> statesList = new List<ExecuteStates>();
-        foreach (IExecute execute in executes)
+        foreach (ExecuteBase execute in executes)
         {
             for (int i = 0; i < repeatTimePerSuite.Length; i++)
             {
@@ -80,31 +67,55 @@ public class Tester
                 if (count <= 0)
                     continue;
 
-                ExecuteState csInvoke = ExecuteUtil.InvokeCS(execute, count);
-                appendTestInfo("\n{0} | {1} | count={2}, run csharp = {3}",
+                s.Prepare(-1);
+                ExecuteData csResult = ExecuteUtil.RunCSharp(s, execute, count);
+                AppendLog("\n{0} | count={1} \t| run csharp = {2}",
                     execute.GetType().FullName,
-                    execute.Method,
                     count,
-                    csInvoke.Duration >= 0 ? (csInvoke.Duration.ToString("f1") + "ms") : "fail"
+                    csResult.Duration >= 0 ? $"{csResult.Duration:f1}ms" : "fail"
                 );
+                SetProgress(index++, total);
                 yield return null;
 
-                ExecuteState jsInvoke = ExecuteUtil.InvokeJs(jsEnv, execute, count);
-                appendTestInfo("\n{0} | {1} | count={2}, run puerts = {3}",
+                s.Prepare(1);
+                ExecuteData xluaResult = ExecuteUtil.RunXLua(s, s.e.xlua, execute, count);
+                AppendLog("\n{0} | count={1} \t| run xlua = {2}",
                     execute.GetType().FullName,
-                    execute.Method,
                     count,
-                    jsInvoke.Duration >= 0 ? (jsInvoke.Duration.ToString("f1") + "ms") : "fail"
+                    xluaResult.Duration >= 0 ? $"{xluaResult.Duration:f1}ms" : "fail"
                 );
+                SetProgress(index++, total);
                 yield return null;
 
-                ExecuteState luaInvoke = ExecuteUtil.InvokeLua(luaEnv, execute, count);
-                appendTestInfo("\n{0} | {1} | count={2}, run xLua = {3}",
+                s.Prepare(2);
+                ExecuteData puertsV8Result = ExecuteUtil.RunPuertsWithJs(s, s.e.puertsV8, execute, count);
+                AppendLog("\n{0} | count={1} \t| run puerts(v8) = {2}",
                     execute.GetType().FullName,
-                    execute.Method,
                     count,
-                    luaInvoke.Duration >= 0 ? (luaInvoke.Duration.ToString("f1") + "ms") : "fail"
+                    puertsV8Result.Duration >= 0 ? $"{puertsV8Result.Duration:f1}ms" : "fail"
                 );
+                SetProgress(index++, total);
+                yield return null;
+
+                s.Prepare(3);
+                ExecuteData puerstQuickjsResult = ExecuteUtil.RunPuertsWithJs(s, s.e.puertsQuickjs, execute, count);
+
+                AppendLog("\n{0} | count={1} \t| run puerts(quickjs) = {2}",
+                    execute.GetType().FullName,
+                    count,
+                    puerstQuickjsResult.Duration >= 0 ? $"{puerstQuickjsResult.Duration:f1}ms" : "fail"
+                );
+                SetProgress(index++, total);
+                yield return null;
+
+                s.Prepare(4);
+                ExecuteData puertsLuaResult = ExecuteUtil.RunPuertsWithLua(s, s.e.puertsLua, execute, count);
+                AppendLog("\n{0} | count={1} \t| run puerts(lua) = {2}",
+                    execute.GetType().FullName,
+                    count,
+                    puertsLuaResult.Duration >= 0 ? $"{puertsLuaResult.Duration:f1}ms" : "fail"
+                );
+                SetProgress(index++, total);
                 yield return null;
 
                 statesList.Add(new ExecuteStates()
@@ -114,34 +125,133 @@ public class Tester
                     Method = execute.Method,
                     Target = execute.Target,
                     Count = count,
-                    CsInvoke = csInvoke,
-                    JsInvoke = jsInvoke,
-                    LuaInvoke = luaInvoke
+                    Results = new Dictionary<string, ExecuteData>()
+                    {
+                        {"C#", csResult},
+                        {"xLua", xluaResult},
+                        {"puerts(v8)", puertsV8Result},
+                        {"puerts(quickjs)", puerstQuickjsResult},
+                        {"puerts(lua)", puertsLuaResult},
+                    }
                 });
             }
         }
-        isTesting = false;
-        appendTestInfo(@"
+        isRunning = false;
+        sw.Stop();
+        AppendLog(@"
+test completed! total duration = {0}ms
             
-            test completed! total duration = {0}ms
-            
-            states file write to: {1}" ,
-
-            totalDuration.End().ToString("f1"), 
-            OutputResult(statesList)
+states file write to: {1}",
+            sw.ElapsedMilliseconds,
+            statesOutputPath
         );
+        SetProgress(total, total);
+
+        if (File.Exists(statesOutputPath))
+        {
+            File.Delete(statesOutputPath);
+        }
+        File.WriteAllText(statesOutputPath, MarkdownUtil.Generate(s, statesList));
     }
 
-    protected string OutputResult(List<ExecuteStates> statesList) 
+    public event Action<string> OnLogInfo;
+    protected void AppendLog(string info, params object[] parameters)
     {
-        if (File.Exists(statesOutputPath)) File.Delete(statesOutputPath);
-        File.WriteAllText(statesOutputPath, MarkdownUtil.Generate(statesList));
-        return statesOutputPath;
+        if (OnLogInfo == null)
+            return;
+        OnLogInfo(String.Format(info, parameters));
+    }
+    public event Action<int, int> OnProgress;
+    protected void SetProgress(int index, int total)
+    {
+        if (OnProgress == null)
+            return;
+        OnProgress(index, total);
     }
 
-    public event Action<string> OnInfoUpdate;
+    public class Environments
+    {
+        public LuaEnv xlua;
+        public ScriptEnv puertsV8;
+        public ScriptEnv puertsQuickjs;
+        public ScriptEnv puertsLua;
 
-    protected void appendTestInfo(string info, params object[] parameters) {
-        OnInfoUpdate(String.Format(info, parameters));
+        public readonly int preExecute;
+
+        public Environments(int preExecute = 0)
+        {
+            this.preExecute = preExecute;
+        }
+
+        public void InitAll()
+        {
+            var jsLoader = new DefaultLoader();
+            var luaLoader = new LuaDefaultLoader();
+
+            xlua = new LuaEnv();
+            puertsV8 = new ScriptEnv(new BackendV8(jsLoader));
+            puertsQuickjs = new ScriptEnv(new BackendQuickJS(jsLoader));
+            puertsLua = new ScriptEnv(new BackendLua(luaLoader));
+        }
+        public void Tick()
+        {
+            xlua?.Tick();
+            puertsV8?.Tick();
+            puertsQuickjs?.Tick();
+            puertsLua?.Tick();
+        }
+        public void Clear()
+        {
+            xlua?.Dispose();
+            puertsV8?.Dispose();
+            puertsQuickjs?.Dispose();
+            puertsLua?.Dispose();
+
+            xlua = null;
+            puertsV8 = null;
+            puertsQuickjs = null;
+            puertsLua = null;
+        }
+
+        /// <summary>
+        /// 初始化测试环境: 0:初始化全部, 1:xlua, 2:puerts(v8) 3:puerts(quickjs) 4:puerts(lua)
+        /// </summary>
+        /// <param name="index"></param>
+        /// <exception cref="InvalidOperationException"></exception>
+        public void InitEnvironment(int index)
+        {
+            if (xlua != null || puertsV8 != null || puertsQuickjs != null || puertsLua != null)
+                throw new InvalidOperationException("init environment error");
+
+            switch (index)
+            {
+                default:
+                case 0:
+                    InitAll();
+                    break;
+                case 1:
+                    xlua = new LuaEnv();
+                    break;
+                case 2:
+                    puertsV8 = new ScriptEnv(new BackendV8(new DefaultLoader()));
+                    break;
+                case 3:
+                    puertsQuickjs = new ScriptEnv(new BackendQuickJS(new DefaultLoader()));
+                    break;
+                case 4:
+                    puertsLua = new ScriptEnv(new BackendLua(new LuaDefaultLoader()));
+                    break;
+            }
+        }
+        public void CleanEnvironment()
+        {
+            Clear();
+
+            // 手动清理 GC 和 Finalizer 队列，保证干净的测试环境
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+            GC.Collect(); // 再收一次，确保 finalizer 释放的对象也被清理
+            System.Threading.Thread.Sleep(50); // 给 GC 一点缓冲时间(可选)
+        }
     }
 }

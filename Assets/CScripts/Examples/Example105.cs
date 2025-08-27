@@ -9,23 +9,23 @@ using XLua;
 /// 返回值: 值类型
 /// </summary>
 [Test(100)]
-public class Example105 : IExecute
+public class Example105 : ExecuteBase100
 {
     [CSharpCallLua]
     public delegate float TargetFunc(int param1, int param2, float param3);
     [CSharpCallLua]
     public delegate TargetFunc CreateFunc();
 
-    public bool Static => true;
-    public string Method => "payload(number,number,number): number;";
-    public CallTarget Target => CallTarget.CSharpCallScript;
+    public override bool Static => true;
+    public override string Method => "payload(number,number,number): number;";
+    public override ExecuteTarget Target => ExecuteTarget.CSCallScript;
 
-    public object RunCS(int count)
+    public override object RunCSharp(int count)
     {
         throw new System.NotImplementedException();
     }
 
-    public object RunJS(JsEnv env, int count)
+    public override Delegate GetJsFunction(ScriptEnv env)
     {
         var func = env.Eval<TargetFunc>(@"
 function payload(param1,param2,param3){
@@ -34,14 +34,20 @@ function payload(param1,param2,param3){
 
 payload;
 ");
-        float result = 0f;
-        for (int i = 0; i < count; i++)
-        {
-            result += func(i, i + 1, i + 2f);
-        }
-        return result;
+        return func;
     }
-    public object RunLua(LuaEnv env, int count)
+    public override Delegate GetLuaFunction(ScriptEnv env)
+    {
+        var func = env.Eval<TargetFunc>(@"
+local function payload(param1,param2,param3)
+    return param1 + param2 + param3;
+end
+
+return payload;
+");
+        return func;
+    }
+    public override Delegate GetLuaFunction(LuaEnv env)
     {
         var create = env.LoadString<CreateFunc>(@"
 local function payload(param1,param2,param3)
@@ -50,11 +56,16 @@ end
 
 return payload;
 ");
-        var func = create();
+        return create();
+    }
+
+    public override object Invoke(Delegate func, int count)
+    {
+        var _func = (TargetFunc)func;
         float result = 0f;
         for (int i = 0; i < count; i++)
         {
-            result += func(i, i + 1, i + 2f);
+            result += _func(i, i + 1, i + 2f);
         }
         return result;
     }

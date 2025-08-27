@@ -1,14 +1,14 @@
 [System.AttributeUsage(System.AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
 public sealed class TestAttribute : System.Attribute
 {
-    public int priority { get; private set; }
+    public int Priority { get; private set; }
 
     public TestAttribute() : this(int.MaxValue)
     {
     }
     public TestAttribute(int priority)
     {
-        this.priority = priority;
+        this.Priority = priority;
     }
 }
 

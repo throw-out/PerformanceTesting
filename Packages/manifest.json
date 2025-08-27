@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "com.tencent.puerts.core": "file:../package"
+    "com.tencent.puerts.core": "file:./puerts3.0.0_preview"
   },
   "scopedRegistries": [
     {

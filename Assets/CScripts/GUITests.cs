@@ -17,6 +17,11 @@ public class GUITests : MonoBehaviour
     public Text m_ContentText;
     public Button m_StartBtn;
     public Button m_StopBtn;
+    public Toggle m_CheckMemory;
+    public Toggle m_PreExecute;
+    public Toggle m_Exclusive;
+    public Toggle m_AutoGC;
+    public Slider m_Progress;
 
     protected Tester tester;
 
@@ -24,7 +29,6 @@ public class GUITests : MonoBehaviour
 
     private void Awake()
     {
-        
         tester = new Tester(
             repeatTimePerSuite,
 #if UNITY_EDITOR || UNITY_STANDALONE_WIN
@@ -33,30 +37,31 @@ public class GUITests : MonoBehaviour
             Path.Combine(Application.persistentDataPath, "./STATES.md")
 #endif
         );
-        tester.OnInfoUpdate += (string newInfo) =>
+        tester.OnLogInfo += (string newInfo) =>
         {
             MockConsole.Append(newInfo);
             Render(MockConsole.ToString());
         };
+        tester.OnProgress += (index, total) =>
+        {
+            m_Progress.value = (float)index / total;
+        };
+
         this.InitListeners();
-    }
-    private void Update()
-    {
-        tester.Tick();
     }
 
     private void Start()
     {
         Render(null);
-        MockConsole = new StringBuilder();
+        m_Progress.value = 0f;
         if (autoStart) StartTest();
     }
 
     private void Render(string testInfo)
     {
-        var testing = tester.IsTesting();
-        this.m_StartBtn.interactable = !testing;
-        this.m_StopBtn.interactable = testing;
+        var isRunning = tester.IsRunning();
+        this.m_StartBtn.interactable = !isRunning;
+        this.m_StopBtn.interactable = isRunning;
         this.m_ContentText.text = testInfo != null ? testInfo.ToString() : string.Empty;
     }
     private void InitListeners()
@@ -67,13 +72,24 @@ public class GUITests : MonoBehaviour
 
     private void StartTest()
     {
-        if (tester.IsTesting()) return;
-        StartCoroutine(tester.StartTest());
+        if (tester.IsRunning())
+            return;
+        MockConsole = new StringBuilder();
+        Render(MockConsole.ToString());
+        var settings = new ExecuteSettings()
+        {
+            CheckMemory = m_CheckMemory.isOn,
+            PreExecute = m_PreExecute.isOn,
+            Exclusive = m_Exclusive.isOn,
+            AutoGC = m_AutoGC.isOn,
+        };
+        StartCoroutine(tester.StartTest(settings));
     }
     private void StopTest()
     {
-        if (!tester.IsTesting()) return;
+        if (!tester.IsRunning()) return;
         tester.StopTest();
+        Render(MockConsole.ToString());
         StopAllCoroutines();
     }
 }
