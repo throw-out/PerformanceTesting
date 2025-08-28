@@ -13,6 +13,11 @@ public static class ChartUtil
     }
     public static void Generate(IEnumerable<ExecuteStates> states, Action<int, string> request = null, Action<int, byte[]> saveData = null, Action completed = null)
     {
+        if (states == null || !states.Any())
+            return;
+        int count = states.Select(s => s.Count).Max();
+        states = states.Where(s => s.Count == count);
+
         var groupStates = states
             .Where(s => s.Type.GetCustomAttribute<TestChartAttribute>() != null)
             .GroupBy(s => s.Type.GetCustomAttribute<TestChartAttribute>().Id)
@@ -53,24 +58,28 @@ public static class ChartUtil
         }
     }
 
-    public static string FormatQuickChartURL(IEnumerable<ExecuteStates> states)
+    private static string FormatQuickChartURL(IEnumerable<ExecuteStates> states)
     {
         static double GetDuration(ExecuteStates state, string key) => state.Results != null && state.Results.TryGetValue(key, out var data) ? data.Duration : -1;
-
-        if (states == null || !states.Any())
-            return null;
-        int count = states.Select(s => s.Count).Max();
-        states = states.Where(s => s.Count == count);
 
         //获取key
         string[] keys = states.FirstOrDefault(s => s.Results != null && s.Results.Count > 0).Results?.Keys?.ToArray();
         if (keys == null || keys.Length == 0)
             return null;
 
-        var labels = string.Join(",", states.Select(s => $@"'{s.Type.Name}'"));
-        var datasets = string.Join(",", keys.Select(key => $@"{{label:'{key}',data:[{string.Join(",", states.Select(s => GetDuration(s, key)))}]}}"));
-        string query = $@"{{type:'bar',data:{{labels:[{labels}], datasets:[{datasets}]}}}}";
-
+        string query = JsonUtility.ToJson(new QuickChartQuery()
+        {
+            type = "bar",
+            data = new QuickChartQueryData()
+            {
+                labels = states.Select(s => s.Type.Name).ToArray(),
+                datasets = keys.Select(k => new QuickChartQueryDataSet()
+                {
+                    label = k,
+                    data = states.Select(s => GetDuration(s, k)).ToArray()
+                }).ToArray()
+            }
+        });
         return "https://quickchart.io/chart?c=" + UnityEngine.Networking.UnityWebRequest.EscapeURL(query);
     }
 
@@ -96,4 +105,22 @@ public static class ChartUtil
         };
     }
 
+    [System.Serializable]
+    private struct QuickChartQuery
+    {
+        public string type;
+        public QuickChartQueryData data;
+    }
+    [System.Serializable]
+    private struct QuickChartQueryData
+    {
+        public string[] labels;
+        public QuickChartQueryDataSet[] datasets;
+    }
+    [System.Serializable]
+    private struct QuickChartQueryDataSet
+    {
+        public string label;
+        public double[] data;
+    }
 }

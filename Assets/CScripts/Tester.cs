@@ -16,15 +16,11 @@ public class Tester
     }
     private readonly int[] repeatTimePerSuite;
     private readonly string rootPath;
-    private readonly bool appendTimestamp;
-    private readonly bool saveChart;
 
-    public Tester(int[] repeatTimePerSuite, string rootPath, bool appendTimestamp = false, bool saveChart = false)
+    public Tester(int[] repeatTimePerSuite, string rootPath)
     {
         this.repeatTimePerSuite = repeatTimePerSuite;
         this.rootPath = rootPath;
-        this.appendTimestamp = appendTimestamp;
-        this.saveChart = saveChart;
     }
 
     public void StopTest()
@@ -146,7 +142,7 @@ public class Tester
 
         //保存state markdown文件
         DateTime saveTime = DateTime.Now;
-        string statePath = Path.Combine(rootPath, appendTimestamp ? $"STATES_{saveTime:yyyyMMddHHmmss}.md" : $"STATES.md");
+        string statePath = Path.Combine(rootPath, s.SaveTimestampFile ? $"STATES_{saveTime:yyyyMMddHHmmss}.md" : $"STATES.md");
         AppendLog("\nstates file write to: {0}", statePath);
         if (File.Exists(statePath))
         {
@@ -155,7 +151,7 @@ public class Tester
         File.WriteAllText(statePath, MarkdownUtil.Generate(s, statesList));
 
         //保存chart柱状图
-        if (saveChart)
+        if (s.SaveChartFile)
         {
             List<string> charsFiles = new List<string>();
             ChartUtil.Generate(statesList,
@@ -170,7 +166,7 @@ public class Tester
                         AppendLog($"\nrequest failure!!!");
                         return;
                     }
-                    string fileName = appendTimestamp ? $"CHART_{id}_{saveTime:yyyyMMddHHmmss}.png" : $"CHART_{id}.png";
+                    string fileName = s.SaveTimestampFile ? $"CHART_{id}_{saveTime:yyyyMMddHHmmss}.png" : $"CHART_{id}.png";
                     charsFiles.Add(fileName);
 
                     var path = Path.Combine(rootPath, fileName);
@@ -183,7 +179,7 @@ public class Tester
                 },
                 () =>
                 {
-                    if (charsFiles.Count == 0)
+                    if (charsFiles.Count == 0 || !File.Exists(statePath))
                         return;
                     File.AppendAllText(statePath, MarkdownUtil.GenerateCharts(charsFiles));
                 });

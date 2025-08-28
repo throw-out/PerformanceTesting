@@ -19,6 +19,16 @@ public class ExecuteSettings
     /// </summary>
     public bool AutoGC;
 
+    /// <summary>
+    /// 文件名追加时间戳
+    /// </summary>
+    public bool SaveTimestampFile;
+
+    /// <summary>
+    /// 生成并保存图表文件
+    /// </summary>
+    public bool SaveChartFile;
+
     public readonly Environments e = new Environments();
 
     public static ExecuteSettings Default => new ExecuteSettings()

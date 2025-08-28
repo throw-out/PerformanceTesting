@@ -17,10 +17,12 @@ public class GUITests : MonoBehaviour
     public Text m_ContentText;
     public Button m_StartBtn;
     public Button m_StopBtn;
-    public Toggle m_CheckMemory;
-    public Toggle m_Exclusive;
-    public Toggle m_AutoGC;
-    public Slider m_Progress;
+    public Toggle m_CheckMemoryTog;
+    public Toggle m_ExclusiveTog;
+    public Toggle m_AutoGCTog;
+    public Toggle m_SaveTimestampFileTog;
+    public Toggle m_SaveChartFileTog;
+    public Slider m_ProgressSlider;
 
     protected Tester tester;
 
@@ -37,12 +39,6 @@ public class GUITests : MonoBehaviour
 #else
             Application.persistentDataPath
 #endif
-#if UNITY_EDITOR
-            , false
-#else
-            , true
-#endif
-            , true
         );
         tester.OnLogInfo += (string newInfo) =>
         {
@@ -51,7 +47,7 @@ public class GUITests : MonoBehaviour
         };
         tester.OnProgress += (index, total) =>
         {
-            m_Progress.value = (float)index / total;
+            m_ProgressSlider.value = (float)index / total;
         };
 
         this.InitListeners();
@@ -60,7 +56,7 @@ public class GUITests : MonoBehaviour
     private void Start()
     {
         Render(null);
-        m_Progress.value = 0f;
+        m_ProgressSlider.value = 0f;
         if (autoStart) StartTest();
     }
 
@@ -70,6 +66,12 @@ public class GUITests : MonoBehaviour
         this.m_StartBtn.interactable = !isRunning;
         this.m_StopBtn.interactable = isRunning;
         this.m_ContentText.text = testInfo != null ? testInfo.ToString() : string.Empty;
+
+        this.m_CheckMemoryTog.interactable = !isRunning;
+        this.m_ExclusiveTog.interactable = !isRunning;
+        this.m_AutoGCTog.interactable = !isRunning;
+        this.m_SaveTimestampFileTog.interactable = !isRunning;
+        this.m_SaveChartFileTog.interactable = !isRunning;
     }
     private void InitListeners()
     {
@@ -85,9 +87,11 @@ public class GUITests : MonoBehaviour
         Render(MockConsole.ToString());
         var settings = new ExecuteSettings()
         {
-            CheckMemory = m_CheckMemory.isOn,
-            Exclusive = m_Exclusive.isOn,
-            AutoGC = m_AutoGC.isOn,
+            CheckMemory = m_CheckMemoryTog.isOn,
+            Exclusive = m_ExclusiveTog.isOn,
+            AutoGC = m_AutoGCTog.isOn,
+            SaveTimestampFile = m_SaveTimestampFileTog.isOn,
+            SaveChartFile = m_SaveChartFileTog.isOn,
         };
         StartCoroutine(tester.StartTest(settings));
     }
