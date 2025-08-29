@@ -33,8 +33,11 @@ public sealed class TestGroupAttribute : System.Attribute
 public sealed class TestChartAttribute : System.Attribute
 {
     public int Id { get; private set; }
-    public TestChartAttribute(int id)
+    public string Title { get; private set; }
+    public TestChartAttribute(int id) : this(id, null) { }
+    public TestChartAttribute(int id, string title)
     {
         this.Id = id;
+        this.Title = title;
     }
 }
