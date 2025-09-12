@@ -21,20 +21,23 @@ public static class ExecuteUtil
         ).ToArray();
     }
 
-    public static ExecuteData RunCSharp(ExecuteSettings settings, ExecuteBase execute, int count)
+    public static ExecuteData Run(ExecuteMode mode, ExecuteSettings settings, ExecuteBase execute, int count)
     {
         ExecuteData data;
         try
         {
-            Watcher w = Watcher.StartNew(settings.CheckMemory);
-            var ret = execute.RunCSharp(count);
-            w.Stop();
+            execute.Init(mode, settings, count);
+            execute.Prepare(mode, settings);
+
+            Watcher watcher = Watcher.StartNew(settings.CheckMemory);
+            var ret = execute.Run(mode, settings);
+            watcher.Stop();
             data = new ExecuteData()
             {
-                Duration = w.ElapsedMilliseconds,
+                Duration = watcher.ElapsedMilliseconds,
                 Result = ret,
-                TotalMemory = w.AllocatedMemory,
-                Memory = w.Memory,
+                TotalMemory = watcher.AllocatedMemory,
+                Memory = watcher.Memory,
             };
         }
         catch (Exception e)
@@ -42,86 +45,12 @@ public static class ExecuteUtil
             data = ExecuteData.Error;
             if (!(e is System.NotImplementedException))
             {
-                UnityEngine.Debug.LogWarning(execute.GetType().FullName + $".{nameof(RunCSharp)} throw Exception: \n" + e);
+                UnityEngine.Debug.LogWarning($"{execute.GetType().FullName} ExecuteMode={Enum.GetName(typeof(ExecuteMode), mode)} throw Exception: \n" + e);
             }
         }
-        return data;
-    }
-    public static ExecuteData RunPuertsWithJs(ExecuteSettings settings, ScriptEnv env, ExecuteBase execute, int count)
-    {
-        ExecuteData data;
-        try
+        finally
         {
-            Watcher w = Watcher.StartNew(settings.CheckMemory);
-            var ret = execute.RunPuertsWithJs(env, count);
-            w.Stop();
-            data = new ExecuteData()
-            {
-                Duration = w.ElapsedMilliseconds,
-                Result = ret,
-                TotalMemory = w.AllocatedMemory,
-                Memory = w.Memory,
-            };
-        }
-        catch (Exception e)
-        {
-            data = ExecuteData.Error;
-            if (!(e is System.NotImplementedException))
-            {
-                UnityEngine.Debug.LogWarning(execute.GetType().FullName + $".{nameof(RunPuertsWithJs)} throw Exception: \n" + e);
-            }
-        }
-        return data;
-    }
-    public static ExecuteData RunPuertsWithLua(ExecuteSettings settings, ScriptEnv env, ExecuteBase execute, int count)
-    {
-        ExecuteData data;
-        try
-        {
-            Watcher w = Watcher.StartNew(settings.CheckMemory);
-            var ret = execute.RunPuertsWithLua(env, count);
-            w.Stop();
-            data = new ExecuteData()
-            {
-                Duration = w.ElapsedMilliseconds,
-                Result = ret,
-                TotalMemory = w.AllocatedMemory,
-                Memory = w.Memory,
-            };
-        }
-        catch (Exception e)
-        {
-            data = ExecuteData.Error;
-            if (!(e is System.NotImplementedException))
-            {
-                UnityEngine.Debug.LogWarning(execute.GetType().FullName + $".{nameof(RunPuertsWithLua)} throw Exception: \n" + e);
-            }
-        }
-        return data;
-    }
-    public static ExecuteData RunXLua(ExecuteSettings settings, LuaEnv env, ExecuteBase execute, int count)
-    {
-        ExecuteData data;
-        try
-        {
-            Watcher w = Watcher.StartNew(settings.CheckMemory);
-            var ret = execute.RunXLua(env, count);
-            w.Stop();
-            data = new ExecuteData()
-            {
-                Duration = w.ElapsedMilliseconds,
-                Result = ret,
-                TotalMemory = w.AllocatedMemory,
-                Memory = w.Memory,
-            };
-        }
-        catch (Exception e)
-        {
-            data = ExecuteData.Error;
-            if (!(e is System.NotImplementedException))
-            {
-                UnityEngine.Debug.LogWarning(execute.GetType().FullName + $".{nameof(RunXLua)} throw Exception: \n" + e);
-            }
+            execute?.Clear();
         }
         return data;
     }

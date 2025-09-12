@@ -9,6 +9,15 @@ using Debug = UnityEngine.Debug;
 
 public class Tester
 {
+    private static readonly ExecuteMode[] ExecuteModes = new ExecuteMode[]
+    {
+        ExecuteMode.CSharp,
+        ExecuteMode.XLua,
+        ExecuteMode.PuertsWithV8,
+        ExecuteMode.PuertsWithQuickjs,
+        ExecuteMode.PuertsWithLua,
+    };
+
     private bool isRunning;
     public bool IsRunning()
     {
@@ -39,6 +48,7 @@ public class Tester
             Debug.LogError("Editor环境下不允许暂停GC, 无法统计内存数据");
         }
 #endif
+
         ExecuteBase[] executes = ExecuteUtil.GetExecutes();
         if (executes == null || executes.Length == 0)
         {
@@ -56,7 +66,6 @@ public class Tester
         s.Prepare(0);
         //进度状态
         int index = 0, total = executes.Length * repeatTimePerSuite.Length * 5;
-
         List<ExecuteStates> statesList = new List<ExecuteStates>();
         foreach (ExecuteBase execute in executes)
         {
@@ -67,7 +76,7 @@ public class Tester
                     continue;
 
                 s.Prepare(-1);
-                ExecuteData csResult = ExecuteUtil.RunCSharp(s, execute, count);
+                ExecuteData csResult = ExecuteUtil.Run(ExecuteMode.CSharp, s, execute, count);
                 AppendLog("\n{0} | count={1} \t| run csharp = {2}",
                     execute.GetType().FullName,
                     count,
@@ -77,7 +86,7 @@ public class Tester
                 yield return null;
 
                 s.Prepare(1);
-                ExecuteData xluaResult = ExecuteUtil.RunXLua(s, s.e.xlua, execute, count);
+                ExecuteData xluaResult = ExecuteUtil.Run(ExecuteMode.XLua, s, execute, count);
                 AppendLog("\n{0} | count={1} \t| run xlua = {2}",
                     execute.GetType().FullName,
                     count,
@@ -87,7 +96,7 @@ public class Tester
                 yield return null;
 
                 s.Prepare(2);
-                ExecuteData puertsV8Result = ExecuteUtil.RunPuertsWithJs(s, s.e.puertsV8, execute, count);
+                ExecuteData puertsV8Result = ExecuteUtil.Run(ExecuteMode.PuertsWithV8, s, execute, count);
                 AppendLog("\n{0} | count={1} \t| run puerts(v8) = {2}",
                     execute.GetType().FullName,
                     count,
@@ -97,7 +106,7 @@ public class Tester
                 yield return null;
 
                 s.Prepare(3);
-                ExecuteData puerstQuickjsResult = ExecuteUtil.RunPuertsWithJs(s, s.e.puertsQuickjs, execute, count);
+                ExecuteData puerstQuickjsResult = ExecuteUtil.Run(ExecuteMode.PuertsWithQuickjs, s, execute, count);
 
                 AppendLog("\n{0} | count={1} \t| run puerts(quickjs) = {2}",
                     execute.GetType().FullName,
@@ -108,7 +117,7 @@ public class Tester
                 yield return null;
 
                 s.Prepare(4);
-                ExecuteData puertsLuaResult = ExecuteUtil.RunPuertsWithLua(s, s.e.puertsLua, execute, count);
+                ExecuteData puertsLuaResult = ExecuteUtil.Run(ExecuteMode.PuertsWithLua, s, execute, count);
                 AppendLog("\n{0} | count={1} \t| run puerts(lua) = {2}",
                     execute.GetType().FullName,
                     count,
@@ -135,6 +144,7 @@ public class Tester
                 });
             }
         }
+
         isRunning = false;
         sw.Stop();
         SetProgress(total, total);

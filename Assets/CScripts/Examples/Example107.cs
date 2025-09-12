@@ -11,62 +11,51 @@ using XLua;
 /// </summary>
 [Test(100)]
 [TestChart(100)]
-public class Example107 : ExecuteBase100
+public class Example107 : ExecuteBase
 {
-    [CSharpCallLua]
-    public delegate void TargetFunc(Transform transform);
-    [CSharpCallLua]
-    public delegate TargetFunc CreateFunc();
-
+    private const string LuaFunctionTemplate = @"
+local function workload(transform)
+    transform:Rotate(1, 1, 1);
+end
+return workload;
+";
+    private const string JsFunctionTemplate = @"
+function workload(transform) {{
+    transform.Rotate(1, 1, 1);
+}}
+workload;
+";
     public override bool Static => true;
-    public override string Method => "payload(Transform): void;";
+    public override string Method => "workload(Transform): void;";
     public override ExecuteTarget Target => ExecuteTarget.CSCallScript;
 
-    public override object RunCSharp(int count)
+    protected override Delegate GetCSharpFunction(int count)
     {
-        throw new System.NotImplementedException();
+        throw new NotImplementedException();
     }
 
-    public override Delegate GetJsFunction(ScriptEnv env)
+    protected override Delegate GetLuaFunction(LuaEnv env, int count)
     {
-        var func = env.Eval<TargetFunc>(@"
-function payload(transform){
-    transform.Rotate(1, 1, 1);
-}
-
-payload;
-");
-        return func;
+        var creator = env.LoadString<ParamsTransform_Creator>(LuaFunctionTemplate);
+        return creator();
     }
-    public override Delegate GetLuaFunction(ScriptEnv env)
-    {
-        var func = env.Eval<TargetFunc>(@"
-local function payload(transform)
-    transform:Rotate(1, 1, 1);
-end
 
-return payload;
-");
-        return func;
-    }
-    public override Delegate GetLuaFunction(LuaEnv env)
+    protected override Delegate GetLuaFunction(ScriptEnv env, int count)
     {
-        var create = env.LoadString<CreateFunc>(@"
-local function payload(transform)
-    transform:Rotate(1, 1, 1);
-end
+        return env.Eval<ParamsTransform>(LuaFunctionTemplate);
+    }
 
-return payload;
-");
-        return create();
-    }
-    public override object Invoke(Delegate func, int count)
+    protected override Delegate GetJsFunction(ScriptEnv env, int count)
     {
-        var _func = (TargetFunc)func;
+        return env.Eval<ParamsTransform>(JsFunctionTemplate);
+    }
+    protected override object Invoke(Delegate workload, int count)
+    {
+        var func = (ParamsTransform)workload;
         var obj = new GameObject().transform;
         for (int i = 0; i < count; i++)
         {
-            _func(obj);
+            func(obj);
         }
         var result = obj.rotation;
         UnityEngine.Object.DestroyImmediate(obj.gameObject);

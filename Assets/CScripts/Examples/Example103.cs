@@ -10,58 +10,48 @@ using XLua;
 /// </summary>
 [Test(100)]
 [TestChart(100)]
-public class Example103 : ExecuteBase100
+public class Example103 : ExecuteBase
 {
-    [CSharpCallLua]
-    public delegate void TargetFunc(int param1);
-    [CSharpCallLua]
-    public delegate TargetFunc CreateFunc();
-
+    private const string LuaFunctionTemplate = @"
+local function workload(param1)
+end
+return workload;
+";
+    private const string JsFunctionTemplate = @"
+function workload(param1) {{
+}}
+workload;
+";
     public override bool Static => true;
-    public override string Method => "payload(number): void;";
+    public override string Method => "workload(number): void;";
     public override ExecuteTarget Target => ExecuteTarget.CSCallScript;
 
-    public override object RunCSharp(int count)
+    protected override Delegate GetCSharpFunction(int count)
     {
-        throw new System.NotImplementedException();
+        throw new NotImplementedException();
     }
 
-    public override Delegate GetJsFunction(ScriptEnv env)
+    protected override Delegate GetLuaFunction(LuaEnv env, int count)
     {
-        var func = env.Eval<TargetFunc>(@"
-function payload(param1){
-}
-
-payload;
-");
-        return func;
+        var creator = env.LoadString<ParamsInt_Creator>(LuaFunctionTemplate);
+        return creator();
     }
-    public override Delegate GetLuaFunction(ScriptEnv env)
-    {
-        var func = env.Eval<TargetFunc>(@"
-local function payload(param1)
-end
 
-return payload;
-");
-        return func;
-    }
-    public override Delegate GetLuaFunction(LuaEnv env)
+    protected override Delegate GetLuaFunction(ScriptEnv env, int count)
     {
-        var create = env.LoadString<CreateFunc>(@"
-local function payload(param1)
-end
+        return env.Eval<ParamsInt>(LuaFunctionTemplate);
+    }
 
-return payload;
-");
-        return create();
-    }
-    public override object Invoke(Delegate func, int count)
+    protected override Delegate GetJsFunction(ScriptEnv env, int count)
     {
-        var _func = (TargetFunc)func;
+        return env.Eval<ParamsInt>(JsFunctionTemplate);
+    }
+    protected override object Invoke(Delegate workload, int count)
+    {
+        var func = (ParamsInt)workload;
         for (int i = 0; i < count; i++)
         {
-            _func(i);
+            func(i);
         }
         return null;
     }

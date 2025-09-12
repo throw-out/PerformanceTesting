@@ -10,58 +10,50 @@ using XLua;
 /// </summary>
 [Test(100)]
 [TestChart(100)]
-public class Example101 : ExecuteBase100
+public class Example101 : ExecuteBase
 {
-    [CSharpCallLua]
-    public delegate void TargetFunc();
-    [CSharpCallLua]
-    public delegate TargetFunc CreateFunc();
+    private const string LuaFunctionTemplate = @"
+local function workload()
+end
+return workload;
+";
+    private const string JsFunctionTemplate = @"
+function workload() {{
+}}
+workload;
+";
 
     public override bool Static => true;
-    public override string Method => "payload(): void;";
+    public override string Method => "workload(): void;";
     public override ExecuteTarget Target => ExecuteTarget.CSCallScript;
 
-    public override object RunCSharp(int count)
+    protected override Delegate GetCSharpFunction(int count)
     {
-        throw new System.NotImplementedException();
+        throw new NotImplementedException();
     }
 
-    public override Delegate GetJsFunction(ScriptEnv env)
+    protected override Delegate GetLuaFunction(LuaEnv env, int count)
     {
-        var func = env.Eval<TargetFunc>(@"
-function payload(){
-}
-payload;
-");
-        return func;
+        var creator = env.LoadString<Action_Creator>(LuaFunctionTemplate);
+        return creator();
     }
 
-    public override Delegate GetLuaFunction(ScriptEnv env)
+    protected override Delegate GetLuaFunction(ScriptEnv env, int count)
     {
-        var func = env.Eval<TargetFunc>(@"
-local function payload()
-end
-return payload;
-");
-        return func;
+        return env.Eval<Action>(LuaFunctionTemplate);
     }
 
-    public override Delegate GetLuaFunction(LuaEnv env)
+    protected override Delegate GetJsFunction(ScriptEnv env, int count)
     {
-        var create = env.LoadString<CreateFunc>(@"
-local function payload()
-end
-return payload;
-");
-        return create();
+        return env.Eval<Action>(JsFunctionTemplate);
     }
 
-    public override object Invoke(Delegate func, int count)
+    protected override object Invoke(Delegate workload, int count)
     {
-        var _func = (TargetFunc)func;
+        var func = (Action)workload;
         for (int i = 0; i < count; i++)
         {
-            _func();
+            func();
         }
         return null;
     }

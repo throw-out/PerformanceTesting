@@ -1,3 +1,4 @@
+using System;
 using Puerts;
 using XLua;
 
@@ -9,53 +10,72 @@ using XLua;
 /// </summary>
 [Test]
 [TestChart(0)]
-public class Example6 : ExecuteBase1
+public class Example6 : ExecuteBase
 {
-    public override bool Static => true;
-    public override string Method => "float Payload();";
-    public override ExecuteTarget Target => ExecuteTarget.ScriptCallCS;
-
-    public override object RunCSharp(int count)
-    {
-        float result = 0f;
-        for (var i = 0; i < count; i++)
-        {
-            result += Example6.Payload();
-        }
-        return result;
-    }
-    public override string GetJsCode(int count)
-    {
-        return string.Format(
-@"(function() {{
-    var Example = CS.Example6;
-    var result = 0;
-    for(let i = 0; i < {0}; i++){{
-        result += Example.Payload();
-    }}
-
-    return result;
-}})()", count);
-    }
-    public override string GetLuaCode(int count)
-    {
-        return string.Format(
-@"
-return (function()
+    private const string LuaFunctionTemplate = @"
+local function workload()
     local CS = CS or require('csharp');
     local Example = CS.Example6;
     local result = 0;
-    for i = 0,{0} do
-        result = result + Example.Payload();
+    for i = 1,{0} do
+        result = result + Example.Workload();
     end
-
     return result;
-end)();
-", count - 1);
-    }
-
-    public static float Payload()
+end
+return workload;
+";
+    private const string JsFunctionTemplate = @"
+function workload() {{
+    let Example = CS.Example6;
+    let result = 0;
+    for(let i = 0; i < {0}; i++){{
+        result += Example.Workload();
+    }}
+    return result;
+}}
+workload;
+";
+    public static float Workload()
     {
         return 1 + 2 + 3f;
+    }
+
+
+    public override bool Static => true;
+    public override string Method => "float Workload();";
+    public override ExecuteTarget Target => ExecuteTarget.ScriptCallCS;
+
+    protected override Delegate GetCSharpFunction(int count)
+    {
+        return new ReturnFloat(() =>
+        {
+            float result = 0f;
+            for (var i = 0; i < count; i++)
+            {
+                result += Example6.Workload();
+            }
+            return result;
+        });
+    }
+
+    protected override Delegate GetLuaFunction(LuaEnv env, int count)
+    {
+        var creator = env.LoadString<ReturnFloat_Creator>(string.Format(LuaFunctionTemplate, count));
+        return creator();
+    }
+
+    protected override Delegate GetLuaFunction(ScriptEnv env, int count)
+    {
+        return env.Eval<ReturnFloat>(string.Format(LuaFunctionTemplate, count));
+    }
+
+    protected override Delegate GetJsFunction(ScriptEnv env, int count)
+    {
+        return env.Eval<ReturnFloat>(string.Format(JsFunctionTemplate, count));
+    }
+
+    protected override object Invoke(Delegate workload, int count)
+    {
+        return ((ReturnFloat)workload)();
     }
 }

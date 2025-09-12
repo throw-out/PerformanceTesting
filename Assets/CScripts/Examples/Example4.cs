@@ -1,3 +1,4 @@
+using System;
 using Puerts;
 using XLua;
 
@@ -10,46 +11,66 @@ using XLua;
 [Test]
 [TestGroup("ParameterCompare")]
 [TestChart(0)]
-public class Example4 : ExecuteBase1
+public class Example4 : ExecuteBase
 {
-    public override bool Static => true;
-    public override string Method => "void Payload(int, int, float);";
-    public override ExecuteTarget Target => ExecuteTarget.ScriptCallCS;
-
-    public override object RunCSharp(int count)
-    {
-        for (var i = 0; i < count; i++)
-        {
-            Example4.Payload(i, i + 1, i + 2f);
-        }
-        return null;
-    }
-    public override string GetJsCode(int count)
-    {
-        return string.Format(
-@"(function() {{
-    var Example = CS.Example4;
-    for(let i = 0; i < {0}; i++){{
-        Example.Payload(1, i + 1, i + 2);
-    }}
-}})()", count);
-    }
-    public override string GetLuaCode(int count)
-    {
-        return string.Format(
-@"
-(function()
+    private const string LuaFunctionTemplate = @"
+local function workload()
     local CS = CS or require('csharp');
     local Example = CS.Example4;
     for i = 1,{0} do
-        Example.Payload(1, i + 1, i + 2);
+        Example.Workload(1, i + 1, i + 2);
     end
-end)()
-", count);
+end
+return workload;
+";
+    private const string JsFunctionTemplate = @"
+function workload() {{
+    let Example = CS.Example4;
+    for(let i = 0; i < {0}; i++){{
+        Example.Workload(1, i + 1, i + 2);
+    }}
+}}
+workload;
+";
+    public static void Workload(int param1, int param2, float param3)
+    {
     }
 
-    public static void Payload(int param1, int param2, float param3)
-    {
 
+    public override bool Static => true;
+    public override string Method => "void Workload(int, int, float);";
+    public override ExecuteTarget Target => ExecuteTarget.ScriptCallCS;
+
+    protected override Delegate GetCSharpFunction(int count)
+    {
+        return new Action(() =>
+        {
+            for (var i = 0; i < count; i++)
+            {
+                Example4.Workload(i, i + 1, i + 2f);
+            }
+        });
+    }
+
+    protected override Delegate GetLuaFunction(LuaEnv env, int count)
+    {
+        var creator = env.LoadString<Action_Creator>(string.Format(LuaFunctionTemplate, count));
+        return creator();
+    }
+
+    protected override Delegate GetLuaFunction(ScriptEnv env, int count)
+    {
+        return env.Eval<Action>(string.Format(LuaFunctionTemplate, count));
+    }
+
+    protected override Delegate GetJsFunction(ScriptEnv env, int count)
+    {
+        return env.Eval<Action>(string.Format(JsFunctionTemplate, count));
+    }
+
+    protected override object Invoke(Delegate workload, int count)
+    {
+        ((Action)workload)();
+        return null;
     }
 }

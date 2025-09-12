@@ -1,6 +1,8 @@
+using System;
 using Puerts;
 using UnityEngine;
 using XLua;
+using Object = UnityEngine.Object;
 
 /// <summary>
 /// 静态方法调用
@@ -11,65 +13,85 @@ using XLua;
 [Test]
 [TestGroup("xyz vs Vector3")]
 [TestChart(0)]
-public class Example9 : ExecuteBase1
+public class Example9 : ExecuteBase
 {
-    public override bool Static => true;
-    public override string Method => "Quaternion Payload(Transform, Vector3);";
-    public override ExecuteTarget Target => ExecuteTarget.ScriptCallCS;
-
-    public override object RunCSharp(int count)
-    {
-        var obj = new GameObject().transform;
-        var eulers = new Vector3(1f, 2f, 3f);
-        for (var i = 0; i < count; i++)
-        {
-            Example9.Payload(obj, eulers);
-        }
-        var result = obj.rotation;
-        Object.DestroyImmediate(obj.gameObject);
-
-        return result;
-    }
-    public override string GetJsCode(int count)
-    {
-        return string.Format(
- @"(function() {{
-    var Example = CS.Example9;
-
-    var obj = new CS.UnityEngine.GameObject().transform;
-    var eulers = new CS.UnityEngine.Vector3(1, 2, 3);
-    for(let i = 0; i < {0}; i++){{
-        Example.Payload(obj, eulers);
-    }}
-    var result = obj.rotation;
-    CS.UnityEngine.Object.DestroyImmediate(obj.gameObject);
-
-    return result;
-}})()", count);
-    }
-    public override string GetLuaCode(int count)
-    {
-        return string.Format(
-@"
-return (function()
+    private const string LuaFunctionTemplate = @"
+local function workload()
     local CS = CS or require('csharp');
     local Example = CS.Example9;
 
     local obj = CS.UnityEngine.GameObject().transform;
     local eulers = CS.UnityEngine.Vector3(1, 2, 3);
     for i = 0,{0} do
-        Example.Payload(obj, eulers);
+        Example.Workload(obj, eulers);
     end
     local result = obj.rotation;
     CS.UnityEngine.Object.DestroyImmediate(obj.gameObject);
 
     return result;
-end)()
-", count - 1);
-    }
+end
+return workload;
+";
+    private const string JsFunctionTemplate = @"
+function workload() {{
+    var Example = CS.Example9;
 
-    public static void Payload(Transform transform, Vector3 eulers)
+    var obj = new CS.UnityEngine.GameObject().transform;
+    var eulers = new CS.UnityEngine.Vector3(1, 2, 3);
+    for(let i = 0; i < {0}; i++){{
+        Example.Workload(obj, eulers);
+    }}
+    var result = obj.rotation;
+    CS.UnityEngine.Object.DestroyImmediate(obj.gameObject);
+
+    return result;
+}}
+workload;
+";
+    public static void Workload(Transform transform, Vector3 eulers)
     {
         transform.Rotate(eulers);
+    }
+
+    public override bool Static => true;
+    public override string Method => "Quaternion Workload(Transform, Vector3);";
+    public override ExecuteTarget Target => ExecuteTarget.ScriptCallCS;
+
+    protected override System.Delegate GetCSharpFunction(int count)
+    {
+        return new ReturnQuaternion(() =>
+        {
+            var obj = new GameObject().transform;
+            var eulers = new Vector3(1f, 2f, 3f);
+            for (var i = 0; i < count; i++)
+            {
+                Example9.Workload(obj, eulers);
+            }
+            var result = obj.rotation;
+            Object.DestroyImmediate(obj.gameObject);
+
+            return result;
+        });
+    }
+
+    protected override Delegate GetLuaFunction(LuaEnv env, int count)
+    {
+        var creator = env.LoadString<ReturnQuaternion_Creator>(string.Format(LuaFunctionTemplate, count));
+        return creator();
+    }
+
+    protected override Delegate GetLuaFunction(ScriptEnv env, int count)
+    {
+        return env.Eval<ReturnQuaternion>(string.Format(LuaFunctionTemplate, count));
+    }
+
+    protected override Delegate GetJsFunction(ScriptEnv env, int count)
+    {
+        return env.Eval<ReturnQuaternion>(string.Format(JsFunctionTemplate, count));
+    }
+
+    protected override object Invoke(Delegate workload, int count)
+    {
+        return ((ReturnQuaternion)workload)();
     }
 }

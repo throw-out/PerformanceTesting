@@ -11,62 +11,53 @@ using XLua;
 /// </summary>
 [Test(100)]
 [TestChart(100)]
-public class Example108 : ExecuteBase100
+public class Example108 : ExecuteBase
 {
-    [CSharpCallLua]
-    public delegate void TargetFunc(Transform transform, float param1, float param2, float param3);
-    [CSharpCallLua]
-    public delegate TargetFunc CreateFunc();
+    private const string LuaFunctionTemplate = @"
+local function workload(transform, param1, param2, param3)
+    transform:Rotate(param1, param2, param3);
+end
+return workload;
+";
+    private const string JsFunctionTemplate = @"
+function workload(transform, param1, param2, param3) {{
+    transform.Rotate(param1, param2, param3);
+}}
+workload;
+";
 
     public override bool Static => true;
-    public override string Method => "payload(Transform,float,float,float): void;";
+    public override string Method => "workload(Transform,float,float,float): void;";
     public override ExecuteTarget Target => ExecuteTarget.CSCallScript;
 
-    public override object RunCSharp(int count)
+    protected override Delegate GetCSharpFunction(int count)
     {
-        throw new System.NotImplementedException();
+        throw new NotImplementedException();
     }
 
-    public override Delegate GetJsFunction(ScriptEnv env)
+    protected override Delegate GetLuaFunction(LuaEnv env, int count)
     {
-        var func = env.Eval<TargetFunc>(@"
-function payload(transform, param1, param2, param3){
-    transform.Rotate(param1, param2, param3);
-}
-
-payload;
-");
-        return func;
+        var creator = env.LoadString<ParamsTransformFloatFloatFloat_Creator>(LuaFunctionTemplate);
+        return creator();
     }
-    public override Delegate GetLuaFunction(ScriptEnv env)
-    {
-        var func = env.Eval<TargetFunc>(@"
-local function payload(transform, param1, param2, param3)
-    transform:Rotate(param1, param2, param3);
-end
 
-return payload;
-");
-        return func;
-    }
-    public override Delegate GetLuaFunction(LuaEnv env)
+    protected override Delegate GetLuaFunction(ScriptEnv env, int count)
     {
-        var create = env.LoadString<CreateFunc>(@"
-local function payload(transform, param1, param2, param3)
-    transform:Rotate(param1, param2, param3);
-end
+        return env.Eval<ParamsTransformFloatFloatFloat>(LuaFunctionTemplate);
+    }
 
-return payload;
-");
-        return create();
-    }
-    public override object Invoke(Delegate func, int count)
+    protected override Delegate GetJsFunction(ScriptEnv env, int count)
     {
-        var _func = (TargetFunc)func;
+        return env.Eval<ParamsTransformFloatFloatFloat>(JsFunctionTemplate);
+    }
+
+    protected override object Invoke(Delegate workload, int count)
+    {
+        var func = (ParamsTransformFloatFloatFloat)workload;
         var obj = new GameObject().transform;
         for (int i = 0; i < count; i++)
         {
-            _func(obj, i % 3f, i % 4f, i % 5f);
+            func(obj, i % 3f, i % 4f, i % 5f);
         }
         var result = obj.rotation;
         UnityEngine.Object.DestroyImmediate(obj.gameObject);

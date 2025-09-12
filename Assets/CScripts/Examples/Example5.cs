@@ -1,3 +1,4 @@
+using System;
 using Puerts;
 using XLua;
 
@@ -9,53 +10,71 @@ using XLua;
 /// </summary>
 [Test]
 [TestChart(0)]
-public class Example5 : ExecuteBase1
+public class Example5 : ExecuteBase
 {
-    public override bool Static => true;
-    public override string Method => "float Payload(int, int, float);";
-    public override ExecuteTarget Target => ExecuteTarget.ScriptCallCS;
-
-    public override object RunCSharp(int count)
-    {
-        float result = 0f;
-        for (var i = 0; i < count; i++)
-        {
-            result += Example5.Payload(i, i + 1, i + 2f);
-        }
-        return result;
-    }
-    public override string GetJsCode(int count)
-    {
-        return string.Format(
-@"(function() {{
-    var Example = CS.Example5;
-    var result = 0;
-    for(let i = 0; i < {0}; i++){{
-        result += Example.Payload(i, i + 1, i + 2);
-    }}
-
-    return result;
-}})()", count);
-    }
-    public override string GetLuaCode(int count)
-    {
-        return string.Format(
-@"
-return (function()
+    private const string LuaFunctionTemplate = @"
+local function workload()
     local CS = CS or require('csharp');
     local Example = CS.Example5;
     local result = 0;
-    for i = 0,{0} do
-        result = result + Example.Payload(i, i + 1, i + 2);
+    for i = 1,{0} do
+        result = result + Example.Workload(i, i + 1, i + 2);
     end
-
     return result;
-end)()
-", count - 1);
-    }
+end
+return workload;
+";
+    private const string JsFunctionTemplate = @"
+function workload() {{
+    let Example = CS.Example5;
+    let result = 0;
+    for(let i = 0; i < {0}; i++){{
+        result += Example.Workload(i, i + 1, i + 2);
+    }}
+    return result;
+}}
+workload;
+";
 
-    public static float Payload(int param1, int param2, float param3)
+    public override bool Static => true;
+    public override string Method => "float Workload(int, int, float);";
+    public override ExecuteTarget Target => ExecuteTarget.ScriptCallCS;
+
+    public static float Workload(int param1, int param2, float param3)
     {
         return param1 + param2 + param3;
+    }
+
+    protected override Delegate GetCSharpFunction(int count)
+    {
+        return new ReturnFloat(() =>
+        {
+            float result = 0f;
+            for (var i = 0; i < count; i++)
+            {
+                result += Example5.Workload(i, i + 1, i + 2f);
+            }
+            return result;
+        });
+    }
+    protected override Delegate GetLuaFunction(LuaEnv env, int count)
+    {
+        var creator = env.LoadString<ReturnFloat_Creator>(string.Format(LuaFunctionTemplate, count));
+        return creator();
+    }
+
+    protected override Delegate GetLuaFunction(ScriptEnv env, int count)
+    {
+        return env.Eval<ReturnFloat>(string.Format(LuaFunctionTemplate, count));
+    }
+
+    protected override Delegate GetJsFunction(ScriptEnv env, int count)
+    {
+        return env.Eval<ReturnFloat>(string.Format(JsFunctionTemplate, count));
+    }
+
+    protected override object Invoke(Delegate workload, int count)
+    {
+        return ((ReturnFloat)workload)();
     }
 }
