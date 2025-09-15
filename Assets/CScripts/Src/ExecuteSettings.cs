@@ -18,6 +18,17 @@ public class ExecuteSettings
     /// 自动执行GC
     /// </summary>
     public bool AutoGC;
+    /// <summary>
+    /// 预执行代码
+    /// </summary>
+    public bool Prepare;
+    /// <summary>
+    /// 执行多次测试(次数>=3时有效)
+    /// 消耗时长: 去掉最高最低值取平均值
+    /// Memory: 取最高值
+    /// Result: 取最后值
+    /// </summary>
+    public int Debounce = -1;
 
     /// <summary>
     /// 文件名追加时间戳
@@ -35,34 +46,6 @@ public class ExecuteSettings
     {
         CheckMemory = !Application.isEditor
     };
-
-    /// <summary>
-    /// 初始化虚拟机环境
-    /// </summary>
-    /// <param name="id"></param>
-    public void Prepare(int id)
-    {
-        if (Exclusive)
-        {
-            if (id == 0)
-                return;
-            e.CleanEnvironment();   //初始化独立虚拟机, 并立即执行GC
-            e.InitEnvironment(id);
-        }
-        else
-        {
-            if (id == 0)
-            {
-                e.CleanEnvironment();   //一次性初始化全部虚拟机
-                e.InitEnvironment(id);
-            }
-            else if (AutoGC)
-            {
-                e.GarbageCollect();     //自动触发GC
-
-            }
-        }
-    }
 
     public class Environments
     {
@@ -113,31 +96,28 @@ public class ExecuteSettings
         /// </summary>
         /// <param name="id"></param>
         /// <exception cref="InvalidOperationException"></exception>
-        public void InitEnvironment(int id)
+        public void InitEnvironment(ExecuteMode mode)
         {
             if (xlua != null || puertsV8 != null || puertsQuickjs != null || puertsLua != null)
                 throw new InvalidOperationException("init environment error");
 
-            switch (id)
+            switch (mode)
             {
                 default:
-                case 0:
+                case ExecuteMode.None:
                     InitAll();
                     break;
-                case 1:
+                case ExecuteMode.XLua:
                     xlua = new LuaEnv();
                     break;
-                case 2:
+                case ExecuteMode.PuertsWithV8:
                     puertsV8 = new ScriptEnv(new BackendV8(new DefaultLoader()));
                     break;
-                case 3:
+                case ExecuteMode.PuertsWithQuickjs:
                     puertsQuickjs = new ScriptEnv(new BackendQuickJS(new DefaultLoader()));
                     break;
-                case 4:
+                case ExecuteMode.PuertsWithLua:
                     puertsLua = new ScriptEnv(new BackendLua(new LuaDefaultLoader()));
-                    break;
-                case -1:
-                    //什么都不做
                     break;
             }
         }

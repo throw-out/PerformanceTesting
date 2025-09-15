@@ -20,8 +20,12 @@ public class GUITests : MonoBehaviour
     public Toggle m_CheckMemoryTog;
     public Toggle m_ExclusiveTog;
     public Toggle m_AutoGCTog;
+    public Toggle m_Prepare;
+    public InputField m_Debounce;
+
     public Toggle m_SaveTimestampFileTog;
     public Toggle m_SaveChartFileTog;
+
     public Slider m_ProgressSlider;
 
     protected Tester tester;
@@ -40,7 +44,7 @@ public class GUITests : MonoBehaviour
             Application.persistentDataPath
 #endif
         );
-        tester.OnLogInfo += (string newInfo) =>
+        tester.OnLogger += (string newInfo) =>
         {
             MockConsole.Append(newInfo);
             Render(MockConsole.ToString());
@@ -70,6 +74,8 @@ public class GUITests : MonoBehaviour
         this.m_CheckMemoryTog.interactable = !isRunning;
         this.m_ExclusiveTog.interactable = !isRunning;
         this.m_AutoGCTog.interactable = !isRunning;
+        this.m_Prepare.interactable = !isRunning;
+        this.m_Debounce.interactable = !isRunning;
         this.m_SaveTimestampFileTog.interactable = !isRunning;
         this.m_SaveChartFileTog.interactable = !isRunning;
     }
@@ -85,20 +91,24 @@ public class GUITests : MonoBehaviour
             return;
         MockConsole = new StringBuilder();
         Render(MockConsole.ToString());
+
+        int.TryParse(m_Debounce.text, out int debounce);
         var settings = new ExecuteSettings()
         {
             CheckMemory = m_CheckMemoryTog.isOn,
             Exclusive = m_ExclusiveTog.isOn,
             AutoGC = m_AutoGCTog.isOn,
+            Prepare = m_Prepare.isOn,
+            Debounce = debounce,
             SaveTimestampFile = m_SaveTimestampFileTog.isOn,
             SaveChartFile = m_SaveChartFileTog.isOn,
         };
-        StartCoroutine(tester.StartTest(settings));
+        StartCoroutine(tester.Start(settings));
     }
     private void StopTest()
     {
         if (!tester.IsRunning()) return;
-        tester.StopTest();
+        tester.Stop();
         Render(MockConsole.ToString());
         StopAllCoroutines();
     }

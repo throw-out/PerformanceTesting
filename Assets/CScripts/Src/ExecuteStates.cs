@@ -15,14 +15,12 @@ public struct ExecuteData
 {
     public double Duration;
     public object Result;
-    public long TotalMemory;
     public long Memory;
 
     public static readonly ExecuteData Error = new ExecuteData()
     {
         Duration = -1,
         Result = null,
-        TotalMemory = -1,
         Memory = -1,
     };
 }

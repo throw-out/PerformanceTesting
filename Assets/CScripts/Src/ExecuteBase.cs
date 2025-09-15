@@ -18,7 +18,7 @@ public abstract class ExecuteBase
     private int count;
     private Delegate workload;
 
-    public virtual void Init(ExecuteMode mode, ExecuteSettings settings, int count)
+    public virtual void Init(ExecuteSettings settings, ExecuteMode mode, int count)
     {
         this.count = count;
         switch (mode)
@@ -43,11 +43,7 @@ public abstract class ExecuteBase
                 //break;
         }
     }
-    public virtual void Prepare(ExecuteMode mode, ExecuteSettings settings)
-    {
-        Invoke(workload, count);
-    }
-    public virtual object Run(ExecuteMode mode, ExecuteSettings settings)
+    public virtual object Run(ExecuteSettings settings, ExecuteMode mode)
     {
         return Invoke(workload, count);
     }

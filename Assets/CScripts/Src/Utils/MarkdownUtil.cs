@@ -208,10 +208,7 @@ public static class MarkdownUtil
                 builder.Append(FormatDuration(data.Duration));
                 if (settings.CheckMemory)
                 {
-                    builder.AppendFormat("<br>{0} / {1}",
-                        FormatMemorySize(data.TotalMemory),
-                        FormatMemorySize(data.Memory)
-                    );
+                    builder.AppendFormat("<br>{0}", FormatMemorySize(data.Memory));
                 }
                 if (hasAnyResult)
                 {

@@ -21,23 +21,56 @@ public static class ExecuteUtil
         ).ToArray();
     }
 
-    public static ExecuteData Run(ExecuteMode mode, ExecuteSettings settings, ExecuteBase execute, int count)
+    public static ExecuteData Run(ExecuteSettings settings, ExecuteBase execute, ExecuteMode mode, int count)
     {
         ExecuteData data;
         try
         {
-            execute.Init(mode, settings, count);
-            execute.Prepare(mode, settings);
+            execute.Init(settings, mode, count);
+            //预执行代码
+            if (settings.Prepare)
+            {
+                execute.Run(settings, mode);
+            }
 
-            Watcher watcher = Watcher.StartNew(settings.CheckMemory);
-            var ret = execute.Run(mode, settings);
-            watcher.Stop();
+            //多次执行测试, 取平均值
+            long duration = -1, memory = -1;
+            object ret = null;
+            if (settings.Debounce >= 3)
+            {
+                List<long> durations = new List<long>(settings.Debounce);
+                for (int i = 0; i < settings.Debounce; i++)
+                {
+                    settings.e.GarbageCollect();
+
+                    Watcher watcher = Watcher.StartNew(settings.CheckMemory);
+                    ret = execute.Run(settings, mode);
+                    watcher.Stop();
+
+                    durations.Add(watcher.ElapsedMilliseconds);
+                    if (watcher.Memory > memory)
+                    {
+                        memory = watcher.Memory;
+                    }
+                }
+                durations.Sort();
+                duration = (long)durations.Skip(1).Take(durations.Count - 2).Average();
+            }
+            else
+            {
+                Watcher watcher = Watcher.StartNew(settings.CheckMemory);
+                ret = execute.Run(settings, mode);
+                watcher.Stop();
+
+                memory = watcher.Memory;
+                duration = watcher.ElapsedMilliseconds;
+            }
+
             data = new ExecuteData()
             {
-                Duration = watcher.ElapsedMilliseconds,
+                Duration = duration,
                 Result = ret,
-                TotalMemory = watcher.AllocatedMemory,
-                Memory = watcher.Memory,
+                Memory = memory,
             };
         }
         catch (Exception e)
@@ -58,12 +91,11 @@ public static class ExecuteUtil
     private class Watcher
     {
         private readonly bool checkMemory;
-        private long beforeAllocatedMemory;
         private long beforeTotalMemory;
         private System.Diagnostics.Stopwatch w;
+        private System.Diagnostics.Process p;
 
         public long ElapsedMilliseconds => w?.ElapsedMilliseconds ?? -1;
-        public long AllocatedMemory { get; private set; } = -1;
         public long Memory { get; private set; } = -1;
 
         public Watcher(bool checkMemory)
@@ -75,9 +107,12 @@ public static class ExecuteUtil
         {
             if (checkMemory)
             {
+                p = System.Diagnostics.Process.GetCurrentProcess();
+
                 UnityEngine.Scripting.GarbageCollector.GCMode = UnityEngine.Scripting.GarbageCollector.Mode.Disabled;
-                beforeAllocatedMemory = UnityEngine.Profiling.Profiler.GetTotalAllocatedMemoryLong();
-                beforeTotalMemory = GC.GetTotalMemory(false);
+                //UnityEngine.Profiling.Profiler.GetTotalAllocatedMemoryLong();
+                //beforeTotalMemory = GC.GetTotalMemory(false);  //获取托管内存
+                beforeTotalMemory = p.PrivateMemorySize64;  //获取进程内存(包含托管和非托管)
             }
             w = System.Diagnostics.Stopwatch.StartNew();
         }
@@ -87,13 +122,10 @@ public static class ExecuteUtil
 
             if (checkMemory)
             {
-                if (beforeAllocatedMemory > 0)
+                if (beforeTotalMemory > 0 && p != null)
                 {
-                    AllocatedMemory = UnityEngine.Profiling.Profiler.GetTotalAllocatedMemoryLong() - beforeAllocatedMemory;
-                }
-                if (beforeTotalMemory > 0)
-                {
-                    Memory = GC.GetTotalMemory(false) - beforeTotalMemory;
+                    //Memory = GC.GetTotalMemory(false) - beforeTotalMemory;
+                    Memory = p.PrivateMemorySize64 - beforeTotalMemory;
                 }
                 UnityEngine.Scripting.GarbageCollector.GCMode = UnityEngine.Scripting.GarbageCollector.Mode.Enabled;
             }

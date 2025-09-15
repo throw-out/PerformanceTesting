@@ -17,9 +17,9 @@ public class CommandLineTests
             Path.Combine(Application.persistentDataPath, "./STATES.md")
 #endif
         );
-        tester.OnLogInfo += (string info) => UnityEngine.Debug.Log(info);
+        tester.OnLogger += (string info) => UnityEngine.Debug.Log(info);
 
-        IEnumerator enumerator = tester.StartTest(ExecuteSettings.Default);
+        IEnumerator enumerator = tester.Start(ExecuteSettings.Default);
 
         while (enumerator.MoveNext()) { }
     }

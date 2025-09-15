@@ -7,9 +7,9 @@ using UnityEngine.Networking;
 
 public static class ChartUtil
 {
-    public static void Generate(IEnumerable<ExecuteStates> states, Action<int, byte[]> saveData = null)
+    public static void Generate(IEnumerable<ExecuteStates> states, Action<int, byte[]> saveData = null, Action completed = null)
     {
-        Generate(states, saveData);
+        Generate(states, null, saveData, completed);
     }
     public static void Generate(IEnumerable<ExecuteStates> states, Action<int, string> request = null, Action<int, byte[]> response = null, Action completed = null)
     {

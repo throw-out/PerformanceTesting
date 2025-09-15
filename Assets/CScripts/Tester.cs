@@ -6,53 +6,57 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Debug = UnityEngine.Debug;
+using System.Linq;
 
 public class Tester
 {
-    private static readonly ExecuteMode[] ExecuteModes = new ExecuteMode[]
+    private static readonly (ExecuteMode mode, string identifier)[] ExecuteMethods = new (ExecuteMode mode, string identifier)[]
     {
-        ExecuteMode.CSharp,
-        ExecuteMode.XLua,
-        ExecuteMode.PuertsWithV8,
-        ExecuteMode.PuertsWithQuickjs,
-        ExecuteMode.PuertsWithLua,
+        (ExecuteMode.CSharp, "C#"),
+        (ExecuteMode.XLua, "xlua"),
+        (ExecuteMode.PuertsWithV8, "puerts(v8)"),
+        (ExecuteMode.PuertsWithQuickjs, "puerts(quickjs)"),
+        (ExecuteMode.PuertsWithLua, "puerts(lua)"),
     };
 
     private bool isRunning;
+    private readonly int[] repeatTimes;
+    private readonly string rootPath;
+
+    public Tester(int[] repeatTimes, string rootPath)
+    {
+        if (repeatTimes == null || repeatTimes.Length == 0 || repeatTimes.Any(n => n < 0))
+            throw new ArgumentException("");
+        this.repeatTimes = repeatTimes;
+        this.rootPath = rootPath;
+    }
+
     public bool IsRunning()
     {
         return isRunning;
     }
-    private readonly int[] repeatTimePerSuite;
-    private readonly string rootPath;
 
-    public Tester(int[] repeatTimePerSuite, string rootPath)
-    {
-        this.repeatTimePerSuite = repeatTimePerSuite;
-        this.rootPath = rootPath;
-    }
-
-    public void StopTest()
+    public void Stop()
     {
         isRunning = false;
-        AppendLog("\b test stopped");
+        if (IsLogger()) LoggerWrite("test stopped");
     }
 
-    public IEnumerator StartTest(ExecuteSettings s)
+    public IEnumerator Start(ExecuteSettings s)
     {
         isRunning = true;
 #if UNITY_EDITOR
         if (s.CheckMemory)
         {
             s.CheckMemory = false;
-            Debug.LogError("Editor环境下不允许暂停GC, 无法统计内存数据");
+            if (IsLogger()) LoggerWrite("Editor环境下不允许暂停GC, 无法统计内存数据");
         }
 #endif
 
         ExecuteBase[] executes = ExecuteUtil.GetExecutes();
         if (executes == null || executes.Length == 0)
         {
-            AppendLog("\ntest instance not found");
+            if (IsLogger()) LoggerWrite("test instance not found");
             isRunning = false;
             yield break;
         }
@@ -60,149 +64,105 @@ public class Tester
         Stopwatch sw = new Stopwatch();
         sw.Start();
 
-        AppendLog("\nstart test: instance = " + executes.Length);
+        if (IsLogger())
+        {
+            LoggerWrite(string.Empty);
+            LoggerWrite("start test: instance = " + executes.Length);
+        }
         yield return null;
 
-        s.Prepare(0);
-        //进度状态
-        int index = 0, total = executes.Length * repeatTimePerSuite.Length * 5;
-        List<ExecuteStates> statesList = new List<ExecuteStates>();
-        foreach (ExecuteBase execute in executes)
+        //一次性初始化虚拟机环境
+        if (!s.Exclusive)
         {
-            for (int i = 0; i < repeatTimePerSuite.Length; i++)
+            s.e.CleanEnvironment();
+            s.e.InitEnvironment(ExecuteMode.None);
+        }
+
+        //进度状态
+        int progressIndex = 0, progressTotal = executes.Length * repeatTimes.Length * 5;
+
+        List<ExecuteStates> results = new List<ExecuteStates>();
+        for (int i = 0; i < repeatTimes.Length; i++)
+        {
+            int count = repeatTimes[i];
+            if (count <= 0)
+                continue;
+            foreach (ExecuteBase execute in executes)
             {
-                int count = repeatTimePerSuite[i];
-                if (count <= 0)
-                    continue;
+                if (!isRunning)
+                    yield break;
+                var resultDatas = new Dictionary<string, ExecuteData>();
+                foreach (var m in ExecuteMethods)
+                {
+                    if (!isRunning)
+                        yield break;
 
-                s.Prepare(-1);
-                ExecuteData csResult = ExecuteUtil.Run(ExecuteMode.CSharp, s, execute, count);
-                AppendLog("\n{0} | count={1} \t| run csharp = {2}",
-                    execute.GetType().FullName,
-                    count,
-                    csResult.Duration >= 0 ? $"{csResult.Duration:f1}ms" : "fail"
-                );
-                SetProgress(index++, total);
-                yield return null;
+                    if (s.Exclusive)
+                    {
+                        s.e.CleanEnvironment();
+                        s.e.InitEnvironment(m.mode);
+                    }
+                    else
+                    {
+                        s.e.GarbageCollect();
+                    }
 
-                s.Prepare(1);
-                ExecuteData xluaResult = ExecuteUtil.Run(ExecuteMode.XLua, s, execute, count);
-                AppendLog("\n{0} | count={1} \t| run xlua = {2}",
-                    execute.GetType().FullName,
-                    count,
-                    xluaResult.Duration >= 0 ? $"{xluaResult.Duration:f1}ms" : "fail"
-                );
-                SetProgress(index++, total);
-                yield return null;
-
-                s.Prepare(2);
-                ExecuteData puertsV8Result = ExecuteUtil.Run(ExecuteMode.PuertsWithV8, s, execute, count);
-                AppendLog("\n{0} | count={1} \t| run puerts(v8) = {2}",
-                    execute.GetType().FullName,
-                    count,
-                    puertsV8Result.Duration >= 0 ? $"{puertsV8Result.Duration:f1}ms" : "fail"
-                );
-                SetProgress(index++, total);
-                yield return null;
-
-                s.Prepare(3);
-                ExecuteData puerstQuickjsResult = ExecuteUtil.Run(ExecuteMode.PuertsWithQuickjs, s, execute, count);
-
-                AppendLog("\n{0} | count={1} \t| run puerts(quickjs) = {2}",
-                    execute.GetType().FullName,
-                    count,
-                    puerstQuickjsResult.Duration >= 0 ? $"{puerstQuickjsResult.Duration:f1}ms" : "fail"
-                );
-                SetProgress(index++, total);
-                yield return null;
-
-                s.Prepare(4);
-                ExecuteData puertsLuaResult = ExecuteUtil.Run(ExecuteMode.PuertsWithLua, s, execute, count);
-                AppendLog("\n{0} | count={1} \t| run puerts(lua) = {2}",
-                    execute.GetType().FullName,
-                    count,
-                    puertsLuaResult.Duration >= 0 ? $"{puertsLuaResult.Duration:f1}ms" : "fail"
-                );
-                SetProgress(index++, total);
-                yield return null;
-
-                statesList.Add(new ExecuteStates()
+                    ExecuteData result = ExecuteUtil.Run(s, execute, m.mode, count);
+                    if (IsLogger()) LoggerWrite(string.Format("{0} | count={1} \t| run {2} = {3}",
+                        execute.GetType().FullName,
+                        count,
+                        m.identifier,
+                        result.Duration >= 0 ? $"{result.Duration:f1}ms" : "fail"
+                    ));
+                    resultDatas[m.identifier] = result;
+                    SetProgress(progressIndex++, progressTotal);
+                    yield return null;
+                }
+                results.Add(new ExecuteStates()
                 {
                     Type = execute.GetType(),
                     Static = execute.Static,
                     Method = execute.Method,
                     Target = execute.Target,
                     Count = count,
-                    Results = new Dictionary<string, ExecuteData>()
-                    {
-                        {"C#", csResult},
-                        {"xLua", xluaResult},
-                        {"puerts(v8)", puertsV8Result},
-                        {"puerts(quickjs)", puerstQuickjsResult},
-                        {"puerts(lua)", puertsLuaResult},
-                    }
+                    Results = resultDatas
                 });
             }
         }
 
         isRunning = false;
         sw.Stop();
-        SetProgress(total, total);
-        AppendLog("\n\ntest completed! total duration = {0}ms", sw.ElapsedMilliseconds);
+        SetProgress(progressTotal, progressTotal);
+        if (IsLogger())
+        {
+            LoggerWrite(string.Empty);
+            LoggerWrite(string.Format("test completed! total duration = {0}ms", sw.ElapsedMilliseconds));
+        }
 
         //保存state markdown文件
         DateTime saveTime = DateTime.Now;
-        string statePath = Path.Combine(rootPath, s.SaveTimestampFile ? $"STATES_{saveTime:yyyyMMddHHmmss}.md" : $"STATES.md");
-        AppendLog("\nstates file write to: {0}", statePath);
-        if (File.Exists(statePath))
-        {
-            File.Delete(statePath);
-        }
-        File.WriteAllText(statePath, MarkdownUtil.Generate(s, statesList));
+        SaveMarkdown(s, results, saveTime, out string statePath);
 
         //保存chart柱状图
         if (s.SaveChartFile)
         {
-            List<string> charsFiles = new List<string>();
-            ChartUtil.Generate(statesList,
-                (id, url) =>
-                {
-                    AppendLog($"\n\nrequrest(chart-{id}): " + url);
-                },
-                (id, data) =>
-                {
-                    if (data == null)
-                    {
-                        AppendLog($"\nrequest failure!!!");
-                        return;
-                    }
-                    string fileName = s.SaveTimestampFile ? $"CHART_{id}_{saveTime:yyyyMMddHHmmss}.png" : $"CHART_{id}.png";
-                    charsFiles.Add(fileName);
-
-                    var path = Path.Combine(rootPath, fileName);
-                    AppendLog($"\n\nwrite to: {path}");
-                    if (File.Exists(path))
-                    {
-                        File.Delete(path);
-                    }
-                    File.WriteAllBytes(path, data);
-                },
-                () =>
-                {
-                    if (charsFiles.Count == 0 || !File.Exists(statePath))
-                        return;
-                    File.AppendAllText(statePath, MarkdownUtil.GenerateCharts(charsFiles));
-                });
+            SaveChart(s, results, saveTime, statePath);
         }
     }
 
-    public event Action<string> OnLogInfo;
-    protected void AppendLog(string info, params object[] parameters)
+    public event Action<string> OnLogger;
+    protected bool IsLogger()
     {
-        if (OnLogInfo == null)
-            return;
-        OnLogInfo(String.Format(info, parameters));
+        return OnLogger != null;
     }
+    protected void LoggerWrite(string info)
+    {
+        if (OnLogger == null)
+            return;
+        OnLogger(info);
+        OnLogger("\n");
+    }
+
     public event Action<int, int> OnProgress;
     protected void SetProgress(int index, int total)
     {
@@ -211,89 +171,64 @@ public class Tester
         OnProgress(index, total);
     }
 
-    public class Environments
+    private void SaveMarkdown(ExecuteSettings s, List<ExecuteStates> results, DateTime saveTime, out string statePath)
     {
-        public LuaEnv xlua;
-        public ScriptEnv puertsV8;
-        public ScriptEnv puertsQuickjs;
-        public ScriptEnv puertsLua;
-
-        public readonly int preExecute;
-
-        public Environments(int preExecute = 0)
+        statePath = Path.Combine(rootPath, s.SaveTimestampFile ? $"STATES_{saveTime:yyyyMMddHHmmss}.md" : $"STATES.md");
+        if (IsLogger())
         {
-            this.preExecute = preExecute;
+            LoggerWrite(string.Empty);
+            LoggerWrite(string.Format("write states file: {0}", statePath));
         }
 
-        public void InitAll()
+        if (File.Exists(statePath))
         {
-            var jsLoader = new DefaultLoader();
-            var luaLoader = new LuaDefaultLoader();
-
-            xlua = new LuaEnv();
-            puertsV8 = new ScriptEnv(new BackendV8(jsLoader));
-            puertsQuickjs = new ScriptEnv(new BackendQuickJS(jsLoader));
-            puertsLua = new ScriptEnv(new BackendLua(luaLoader));
+            File.Delete(statePath);
         }
-        public void Tick()
-        {
-            xlua?.Tick();
-            puertsV8?.Tick();
-            puertsQuickjs?.Tick();
-            puertsLua?.Tick();
-        }
-        public void Clear()
-        {
-            xlua?.Dispose();
-            puertsV8?.Dispose();
-            puertsQuickjs?.Dispose();
-            puertsLua?.Dispose();
+        File.WriteAllText(statePath, MarkdownUtil.Generate(s, results));
+    }
 
-            xlua = null;
-            puertsV8 = null;
-            puertsQuickjs = null;
-            puertsLua = null;
-        }
-
-        /// <summary>
-        /// 初始化测试环境: 0:初始化全部, 1:xlua, 2:puerts(v8) 3:puerts(quickjs) 4:puerts(lua)
-        /// </summary>
-        /// <param name="index"></param>
-        /// <exception cref="InvalidOperationException"></exception>
-        public void InitEnvironment(int index)
-        {
-            if (xlua != null || puertsV8 != null || puertsQuickjs != null || puertsLua != null)
-                throw new InvalidOperationException("init environment error");
-
-            switch (index)
+    private void SaveChart(ExecuteSettings s, List<ExecuteStates> results, DateTime saveTime, string statePath = null)
+    {
+        List<string> charsFiles = new List<string>();
+        ChartUtil.Generate(
+            results,
+            (id, url) =>
             {
-                default:
-                case 0:
-                    InitAll();
-                    break;
-                case 1:
-                    xlua = new LuaEnv();
-                    break;
-                case 2:
-                    puertsV8 = new ScriptEnv(new BackendV8(new DefaultLoader()));
-                    break;
-                case 3:
-                    puertsQuickjs = new ScriptEnv(new BackendQuickJS(new DefaultLoader()));
-                    break;
-                case 4:
-                    puertsLua = new ScriptEnv(new BackendLua(new LuaDefaultLoader()));
-                    break;
-            }
-        }
-        public void CleanEnvironment()
-        {
-            Clear();
+                if (IsLogger())
+                {
+                    LoggerWrite(string.Empty);
+                    LoggerWrite($"requrest(chart-{id}): " + url);
+                }
+            },
+            (id, data) =>
+            {
+                if (data == null)
+                {
+                    if (IsLogger())
+                    {
+                        LoggerWrite($"request failure!!!");
+                    }
+                    return;
+                }
+                string fileName = s.SaveTimestampFile ? $"CHART_{id}_{saveTime:yyyyMMddHHmmss}.png" : $"CHART_{id}.png";
+                charsFiles.Add(fileName);
 
-            // 手动清理 GC 和 Finalizer 队列，保证干净的测试环境
-            GC.Collect();
-            GC.WaitForPendingFinalizers();
-            GC.Collect(); // 再收一次，确保 finalizer 释放的对象也被清理
-            System.Threading.Thread.Sleep(50); // 给 GC 一点缓冲时间(可选)
-        }
+                var path = Path.Combine(rootPath, fileName);
+                if (IsLogger())
+                {
+                    LoggerWrite($"write to: {path}");
+                }
+                if (File.Exists(path))
+                {
+                    File.Delete(path);
+                }
+                File.WriteAllBytes(path, data);
+            },
+            () =>
+            {
+                if (charsFiles.Count == 0 || string.IsNullOrEmpty(statePath) || !File.Exists(statePath))
+                    return;
+                File.AppendAllText(statePath, MarkdownUtil.GenerateCharts(charsFiles));
+            });
     }
 }
