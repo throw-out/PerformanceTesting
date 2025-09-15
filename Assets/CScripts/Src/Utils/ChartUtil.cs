@@ -50,13 +50,18 @@ public static class ChartUtil
                 (data) =>
                 {
                     request?.Invoke(data.id, data.title);
-                    string url = "https://quickchart.io/chart";
-                    string postData = JsonUtility.ToJson(new QuickChart.ChartQuery()
-                    {
-                        devicePixelRatio = 1f,
-                        chart = QuickChart.ChartConfiguration.From(data.states)
-                    });
-                    return (url, postData);
+                    // string url = "https://quickchart.io/chart";
+                    // string postData = JsonUtility.ToJson(new QuickChart.ChartQuery()
+                    // {
+                    //     devicePixelRatio = 1f,
+                    //     chart = QuickChart.ChartConfiguration.From(data.states)
+                    // });
+                    // return (url, postData);
+
+                    //使用get方式创建图表
+                    string query = JsonUtility.ToJson(QuickChart.ChartConfiguration.From(states));
+                    string url = "https://quickchart.io/chart?devicePixelRatio=1&chart=" + UnityEngine.Networking.UnityWebRequest.EscapeURL(query);
+                    return (url, null);
                 },
                 (data, buffer) =>
                 {
@@ -77,33 +82,8 @@ public static class ChartUtil
 
     private static string FormatQuickChartURL(IEnumerable<ExecuteStates> states)
     {
-        static double GetDuration(ExecuteStates state, string key, double defaultValue = 0)
-        {
-            double duration = state.Results != null && state.Results.TryGetValue(key, out var data) ? data.Duration : -1;
-            if (duration < 0)
-                return defaultValue;
-            return duration;
-        }
-
-        //获取key
-        string[] keys = states.FirstOrDefault(s => s.Results != null && s.Results.Count > 0).Results?.Keys?.ToArray();
-        if (keys == null || keys.Length == 0)
-            return null;
-
         //double maxDuration = states.SelectMany(s => s.Results?.Values.Select(v => v.Duration)).Max();
-        string query = JsonUtility.ToJson(new ChartConfiguration()
-        {
-            type = "bar",
-            data = new ChartTemplates()
-            {
-                labels = states.Select(s => s.Type.Name).ToArray(),
-                datasets = keys.Select(k => new ChartDataSet()
-                {
-                    label = k,
-                    data = states.Select(s => GetDuration(s, k)).ToArray()
-                }).ToArray()
-            }
-        });
+        string query = JsonUtility.ToJson(QuickChart.ChartConfiguration.From(states));
         return "https://quickchart.io/chart?c=" + UnityEngine.Networking.UnityWebRequest.EscapeURL(query);
     }
 
@@ -148,6 +128,10 @@ public static class ChartUtil
         request.timeout = 30;
         request.downloadHandler = handler;
 
+#if UNITY_EDITOR
+        UnityEngine.Debug.Log($"get: {url}");
+#endif
+
         var operation = request.SendWebRequest();
         operation.completed += (op) =>
         {
@@ -170,6 +154,10 @@ public static class ChartUtil
         request.downloadHandler = handler;
         request.SetRequestHeader("Content-Type", "application/json");
 
+#if UNITY_EDITOR
+        UnityEngine.Debug.Log($"post: {url}\npostData: {postData}");
+#endif
+
         var operation = request.SendWebRequest();
         operation.completed += (op) =>
         {
@@ -184,40 +172,6 @@ public static class ChartUtil
             }
         };
     }
-
-
-    [System.Serializable]
-    private struct QuickChartQuery111
-    {
-        public int? width;  //图像宽度（以像素为单位）。默认为 500
-        public int? height; //图像高度（以像素为单位）。默认为 300
-        public float? devicePixelRatio;   //设备像素比（DPR）。默认为 2
-        public string backgroundColor;  //RGB、HEX、HSL 或颜色名称。默认为透明
-        public string format;   //PNG、WEBP、SVG 或 PDF。默认为 png
-        public string key;   //API key (optional)
-        public ChartConfiguration chart;
-    }
-
-    [System.Serializable]
-    private struct ChartConfiguration
-    {
-        public string type; //bar:柱状图, line:折线图, pie:饼图
-        public ChartTemplates data;
-    }
-    [System.Serializable]
-    private struct ChartTemplates
-    {
-        public string title; //图表标题
-        public string[] labels;
-        public ChartDataSet[] datasets;
-    }
-    [System.Serializable]
-    private struct ChartDataSet
-    {
-        public string type; //bar:柱状图, line:折线图
-        public string label;
-        public double[] data;
-    }
 }
 
 namespace QuickChart
@@ -228,9 +182,9 @@ namespace QuickChart
         public int? width;  //图像宽度（以像素为单位）。默认为 500
         public int? height; //图像高度（以像素为单位）。默认为 300
         public float? devicePixelRatio;   //设备像素比（DPR）。默认为 2
-        public string backgroundColor;  //RGB、HEX、HSL 或颜色名称。默认为透明
-        public string format;   //PNG、WEBP、SVG 或 PDF。默认为 png
-        public string key;   //API key (optional)
+        public string backgroundColor = "transparent";  //RGB、HEX、HSL 或颜色名称。默认为透明
+        public string format = "png";   //PNG、WEBP、SVG 或 PDF。默认为 png
+        //public string key = null;   //API key (optional)
         public ChartConfiguration chart;
     }
 
@@ -280,7 +234,6 @@ namespace QuickChart
     [System.Serializable]
     public class ChartDataSet
     {
-        public string type; //bar:柱状图, line:折线图
         public string label;
         public double[] data;
     }
