@@ -7,60 +7,39 @@ using UnityEngine.Networking;
 
 public static class ChartUtil
 {
-    public static void Generate(IEnumerable<ExecuteStates> states, Action<int, byte[]> saveData = null, Action completed = null)
+    public static void GenerateCpuChart(IEnumerable<ExecuteStates> states, Action<int, string> request = null, Action<int, byte[]> response = null, Action completed = null)
     {
-        Generate(states, null, saveData, completed);
+        Generate(0, states, request, response, completed);
     }
-    public static void Generate(IEnumerable<ExecuteStates> states, Action<int, string> request = null, Action<int, byte[]> response = null, Action completed = null)
+    public static void GenerateMemoryChart(IEnumerable<ExecuteStates> states, Action<int, string> request = null, Action<int, byte[]> response = null, Action completed = null)
     {
-        static string GetTitle(IEnumerable<ExecuteStates> states)
-        {
-            foreach (var state in states)
-            {
-                var attr = state.Type.GetCustomAttribute<TestChartAttribute>();
-                if (attr != null && !string.IsNullOrEmpty(attr.Title))
-                {
-                    return attr.Title;
-                }
-            }
-            return null;
-        }
-
-        if (states == null || !states.Any())
+        Generate(1, states, request, response, completed);
+    }
+    private static void Generate(int type, IEnumerable<ExecuteStates> states, Action<int, string> request = null, Action<int, byte[]> response = null, Action completed = null)
+    {
+        var groupsDatas = Group(states);
+        if (groupsDatas == null || !groupsDatas.Any())
             return;
-        int count = states.Select(s => s.Count).Max();
-        states = states.Where(s => s.Count == count);
-
-        var groupStates = states
-            .Where(s => s.Type.IsDefined(typeof(TestChartAttribute), false))
-            .GroupBy(s => s.Type.GetCustomAttribute<TestChartAttribute>().Id)
-            .ToDictionary(o => o.Key, o => o.Cast<ExecuteStates>().ToList());
-        var groupsDatas = groupStates
-            .Select(group => new
-            {
-                id = group.Key,
-                title = GetTitle(group.Value),
-                states = group.Value
-            })
-            .ToList();
-
         if (response != null)
         {
             DownloadTextureList(groupsDatas,
                 (data) =>
                 {
                     request?.Invoke(data.id, data.title);
+                    //使用post方式创建图表
                     // string url = "https://quickchart.io/chart";
                     // string postData = JsonUtility.ToJson(new QuickChart.ChartQuery()
                     // {
-                    //     devicePixelRatio = 1f,
+                    //     devicePixelRatio = 2f,
                     //     chart = QuickChart.ChartConfiguration.From(data.states)
                     // });
                     // return (url, postData);
 
                     //使用get方式创建图表
-                    string query = JsonUtility.ToJson(QuickChart.ChartConfiguration.From(states));
-                    string url = "https://quickchart.io/chart?devicePixelRatio=1&chart=" + UnityEngine.Networking.UnityWebRequest.EscapeURL(query);
+                    string chartData = type == 0 ?
+                        JsonUtility.ToJson(QuickChart.ChartConfiguration.FromCpuUsed(states)) :
+                        JsonUtility.ToJson(QuickChart.ChartConfiguration.FromMemoryUsed(states));
+                    string url = "https://quickchart.io/chart?devicePixelRatio=2&chart=" + UnityWebRequest.EscapeURL(chartData);
                     return (url, null);
                 },
                 (data, buffer) =>
@@ -72,19 +51,33 @@ public static class ChartUtil
         }
         else
         {
-            // foreach (var data in groupsDatas)
-            // {
-            //     request?.Invoke(data.id, data.title);
-            // }
             completed?.Invoke();
         }
     }
 
-    private static string FormatQuickChartURL(IEnumerable<ExecuteStates> states)
+    /// <summary>
+    /// 对图表数据进行分组
+    /// </summary>
+    private static List<(int id, string title, List<ExecuteStates> states)> Group(IEnumerable<ExecuteStates> states)
     {
-        //double maxDuration = states.SelectMany(s => s.Results?.Values.Select(v => v.Duration)).Max();
-        string query = JsonUtility.ToJson(QuickChart.ChartConfiguration.From(states));
-        return "https://quickchart.io/chart?c=" + UnityEngine.Networking.UnityWebRequest.EscapeURL(query);
+        if (states == null || !states.Any())
+            return null;
+        int count = states.Select(s => s.Count).Max();
+        states = states.Where(s => s.Count == count);
+
+        var groupStates = states
+            .Where(s => s.Type.IsDefined(typeof(TestChartAttribute), false))
+            .GroupBy(s => s.Type.GetCustomAttribute<TestChartAttribute>().Id)
+            .ToDictionary(o => o.Key, o => o.Cast<ExecuteStates>().ToList());
+        var groupsDatas = groupStates
+            .Select(group => (
+                group.Key,
+                GetChartTitle(group.Value),
+                group.Value
+            ))
+            .ToList();
+
+        return groupsDatas;
     }
 
     private static void DownloadTextureList<T>(List<T> list, Func<T, (string url, string postData)> request, Action<T, byte[]> response, Action completed)
@@ -172,6 +165,19 @@ public static class ChartUtil
             }
         };
     }
+
+    private static string GetChartTitle(IEnumerable<ExecuteStates> states)
+    {
+        foreach (var state in states)
+        {
+            var attr = state.Type.GetCustomAttribute<TestChartAttribute>();
+            if (attr != null && !string.IsNullOrEmpty(attr.Title))
+            {
+                return attr.Title;
+            }
+        }
+        return null;
+    }
 }
 
 namespace QuickChart
@@ -195,20 +201,20 @@ namespace QuickChart
         public ChartTemplates data;
         public ChartOptions options;
 
-        public static ChartConfiguration From(IEnumerable<ExecuteStates> states)
+        public static ChartConfiguration FromCpuUsed(IEnumerable<ExecuteStates> states)
         {
-            static double GetDuration(ExecuteStates state, string key, double defaultValue = 0)
-            {
-                double duration = state.Results != null && state.Results.TryGetValue(key, out var data) ? data.Duration : -1;
-                if (duration < 0)
-                    return defaultValue;
-                return duration;
-            }
+            return From(states, GetDuration);
+        }
+        public static ChartConfiguration FromMemoryUsed(IEnumerable<ExecuteStates> states)
+        {
+            return From(states, GetMemory);
+        }
+        private static ChartConfiguration From(IEnumerable<ExecuteStates> states, Func<ExecuteStates, string, double, double> select)
+        {
             //获取key
             string[] keys = states.FirstOrDefault(s => s.Results != null && s.Results.Count > 0).Results?.Keys?.ToArray();
             if (keys == null || keys.Length == 0)
                 return null;
-
             return new ChartConfiguration()
             {
                 type = "bar",
@@ -218,10 +224,25 @@ namespace QuickChart
                     datasets = keys.Select(k => new ChartDataSet()
                     {
                         label = k,
-                        data = states.Select(s => GetDuration(s, k)).ToArray()
+                        data = states.Select(s => select(s, k, 0d)).ToArray()
                     }).ToArray()
                 }
             };
+        }
+
+        private static double GetDuration(ExecuteStates state, string key, double defaultValue = 0)
+        {
+            double duration = state.Results != null && state.Results.TryGetValue(key, out var data) ? data.Duration : -1;
+            if (duration < 0)
+                return defaultValue;
+            return duration;
+        }
+        private static double GetMemory(ExecuteStates state, string key, double defaultValue = 0)
+        {
+            long duration = state.Results != null && state.Results.TryGetValue(key, out var data) ? data.Memory : -1;
+            if (duration < 0)
+                return defaultValue;
+            return duration;
         }
     }
 

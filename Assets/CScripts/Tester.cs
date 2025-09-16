@@ -190,14 +190,14 @@ public class Tester
     private void SaveChart(ExecuteSettings s, List<ExecuteStates> results, DateTime saveTime, string statePath = null)
     {
         List<string> charsFiles = new List<string>();
-        ChartUtil.Generate(
+        ChartUtil.GenerateCpuChart(
             results,
-            (id, url) =>
+            (id, title) =>
             {
                 if (IsLogger())
                 {
                     LoggerWrite(string.Empty);
-                    LoggerWrite($"requrest(chart-{id}): " + url);
+                    LoggerWrite($"requrest(chart-{id}): " + title);
                 }
             },
             (id, data) =>
@@ -228,7 +228,7 @@ public class Tester
             {
                 if (charsFiles.Count == 0 || string.IsNullOrEmpty(statePath) || !File.Exists(statePath))
                     return;
-                File.AppendAllText(statePath, MarkdownUtil.GenerateCharts(charsFiles));
+                File.AppendAllText(statePath, MarkdownUtil.GenerateCharts(charsFiles, null));
             });
     }
 }

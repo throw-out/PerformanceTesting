@@ -223,7 +223,7 @@ public static class MarkdownUtil
         return builder.ToString();
     }
 
-    public static string GenerateCharts(IEnumerable<string> chartFiles)
+    public static string GenerateCharts(IEnumerable<string> executeChart, IEnumerable<string> memoryChart)
     {
         StringBuilder builder = new StringBuilder();
 
@@ -231,13 +231,35 @@ public static class MarkdownUtil
         builder.Append("# 图表数据");
 
         builder.AppendLine();
+        builder.AppendLine();
         builder.Append("**以下图表使用[QuickChart](https://quickchart.io/)进行生成, 感谢[QuickChart open API](https://quickchart.io/)**");
         builder.AppendLine();
 
-        foreach (var chartFile in chartFiles)
+        if (executeChart != null && executeChart.Any())
         {
             builder.AppendLine();
-            builder.AppendFormat("![](/{0})", chartFile);
+            builder.AppendLine();
+            builder.Append("- 执行耗时(越低越好)");
+            builder.AppendLine();
+            builder.AppendLine();
+            foreach (var chartFile in executeChart)
+            {
+                builder.AppendLine();
+                builder.AppendFormat("![](/{0})", chartFile);
+            }
+        }
+        if (memoryChart != null && memoryChart.Any())
+        {
+            builder.AppendLine();
+            builder.AppendLine();
+            builder.Append("- 执行内存消耗(越低越好)");
+            builder.AppendLine();
+            builder.AppendLine();
+            foreach (var chartFile in memoryChart)
+            {
+                builder.AppendLine();
+                builder.AppendFormat("![](/{0})", chartFile);
+            }
         }
         return builder.ToString();
     }
