@@ -11,13 +11,18 @@ public static class MarkdownUtil
         StringBuilder builder = new StringBuilder();
 
         builder.AppendLine();
-        builder.Append("# 软件版本");
-        builder.Append(GetVersion());
+        builder.Append("# 系统环境");
+        builder.Append(GetEnvironment());
         builder.AppendLine();
 
         builder.AppendLine();
-        builder.Append("# 系统环境");
-        builder.Append(GetEnvironment(settings));
+        builder.Append("# 软件版本");
+        builder.Append(GetLibraryVersion());
+        builder.AppendLine();
+
+        builder.AppendLine();
+        builder.Append("# 运行时参数");
+        builder.Append(GetSettings(settings));
         builder.AppendLine();
 
         var groupTable = GetGroupTable(settings, states);
@@ -36,7 +41,7 @@ public static class MarkdownUtil
 
         return builder.ToString();
     }
-    public static string GetVersion()
+    public static string GetLibraryVersion()
     {
         StringBuilder builder = new StringBuilder();
         builder.AppendLine();
@@ -55,7 +60,7 @@ public static class MarkdownUtil
         builder.AppendFormat("| puerts(v8)      | {0}               |", new Puerts.BackendV8().GetApiVersion());
         return builder.ToString();
     }
-    public static string GetEnvironment(ExecuteSettings settings)
+    public static string GetEnvironment()
     {
         StringBuilder builder = new StringBuilder();
         builder.AppendLine();
@@ -76,12 +81,21 @@ public static class MarkdownUtil
         builder.AppendFormat("| Editor          | {0}               |", Application.isEditor);          //是否为编辑器模式
         builder.AppendLine();
         builder.AppendFormat("| Date            | {0}               |", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));  //本地电脑时间
+        return builder.ToString();
+    }
+    public static string GetSettings(ExecuteSettings settings)
+    {
+        StringBuilder builder = new StringBuilder();
         builder.AppendLine();
         builder.AppendFormat("| CheckMemory     | {0}               |", settings.CheckMemory);
         builder.AppendLine();
         builder.AppendFormat("| Exclusive       | {0}               |", settings.Exclusive);
         builder.AppendLine();
         builder.AppendFormat("| AutoGC          | {0}               |", settings.AutoGC);
+        builder.AppendLine();
+        builder.AppendFormat("| Prepare         | {0}               |", settings.Prepare);
+        builder.AppendLine();
+        builder.AppendFormat("| Debounce        | {0}               |", settings.Debounce >= 3 ? settings.Debounce : 0);
         return builder.ToString();
     }
 
@@ -152,8 +166,6 @@ public static class MarkdownUtil
 #else
             scriptPath = $"/Assets/CScripts/Examples/{type.Name}.cs";   //string.Empty;
 #endif
-            //return scriptPath != null ? $"[![#](/pic/code.png)](/{scriptPath})" : "#";    //use picture or emoji
-            //return scriptPath != null ? $"[:page_facing_up:](/{scriptPath})" : "#";
             return scriptPath != null ? $"[{type.Name}](/{scriptPath})" : "#";
         }
         static string FormatMemorySize(long size)

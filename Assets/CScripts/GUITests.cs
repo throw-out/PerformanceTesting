@@ -12,7 +12,9 @@ using XLua;
 public class GUITests : MonoBehaviour
 {
     public bool autoStart = true;
-    public int[] repeatTimePerSuite;
+
+    [Tooltip("测试执行次数")]
+    public int[] repeatTimes;
 
     public Text m_ContentText;
     public Button m_StartBtn;
@@ -20,8 +22,9 @@ public class GUITests : MonoBehaviour
     public Toggle m_CheckMemoryTog;
     public Toggle m_ExclusiveTog;
     public Toggle m_AutoGCTog;
-    public Toggle m_Prepare;
-    public InputField m_Debounce;
+    public Toggle m_PrepareTog;
+    public InputField m_DebounceInput;
+    public InputField m_SaveDirectoryInput;
 
     public Toggle m_SaveTimestampFileTog;
     public Toggle m_SaveChartFileTog;
@@ -30,20 +33,37 @@ public class GUITests : MonoBehaviour
 
     protected Tester tester;
 
+    protected Selectable[] _settingComponents;
+    protected Selectable[] SettingComponents
+    {
+        get
+        {
+            if (_settingComponents == null)
+            {
+                _settingComponents = new Selectable[]
+                {
+                    m_CheckMemoryTog, m_ExclusiveTog, m_AutoGCTog, m_PrepareTog, m_DebounceInput,
+                    m_SaveDirectoryInput, m_SaveTimestampFileTog, m_SaveChartFileTog
+                };
+            }
+            return _settingComponents;
+        }
+    }
+
     private StringBuilder MockConsole;
 
     private void Awake()
     {
-        tester = new Tester(
-            repeatTimePerSuite,
+        string outputPath;
 #if UNITY_EDITOR
-            Path.GetDirectoryName(Application.dataPath)
+        outputPath = Path.Combine(Path.GetDirectoryName(Application.dataPath), "States");
 #elif UNITY_STANDALONE_WIN
-            Application.dataPath
+        outputPath = Application.dataPath;
 #else
-            Application.persistentDataPath
+        outputPath = Application.persistentDataPath;
 #endif
-        );
+
+        tester = new Tester(repeatTimes, outputPath);
         tester.OnLogger += (string newInfo) =>
         {
             MockConsole.Append(newInfo);
@@ -70,14 +90,12 @@ public class GUITests : MonoBehaviour
         this.m_StartBtn.interactable = !isRunning;
         this.m_StopBtn.interactable = isRunning;
         this.m_ContentText.text = testInfo != null ? testInfo.ToString() : string.Empty;
-
-        this.m_CheckMemoryTog.interactable = !isRunning;
-        this.m_ExclusiveTog.interactable = !isRunning;
-        this.m_AutoGCTog.interactable = !isRunning;
-        this.m_Prepare.interactable = !isRunning;
-        this.m_Debounce.interactable = !isRunning;
-        this.m_SaveTimestampFileTog.interactable = !isRunning;
-        this.m_SaveChartFileTog.interactable = !isRunning;
+        foreach (var component in SettingComponents)
+        {
+            if (component == null)
+                continue;
+            component.interactable = !isRunning;
+        }
     }
     private void InitListeners()
     {
@@ -92,14 +110,15 @@ public class GUITests : MonoBehaviour
         MockConsole = new StringBuilder();
         Render(MockConsole.ToString());
 
-        int.TryParse(m_Debounce.text, out int debounce);
+        int.TryParse(m_DebounceInput.text, out int debounce);
         var settings = new ExecuteSettings()
         {
             CheckMemory = m_CheckMemoryTog.isOn,
             Exclusive = m_ExclusiveTog.isOn,
             AutoGC = m_AutoGCTog.isOn,
-            Prepare = m_Prepare.isOn,
+            Prepare = m_PrepareTog.isOn,
             Debounce = debounce,
+            SaveDirectory = m_SaveDirectoryInput.text,
             SaveTimestampFile = m_SaveTimestampFileTog.isOn,
             SaveChartFile = m_SaveChartFileTog.isOn,
         };

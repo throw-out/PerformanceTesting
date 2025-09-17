@@ -31,6 +31,10 @@ public class ExecuteSettings
     public int Debounce = -1;
 
     /// <summary>
+    /// 文件名追加字符串
+    /// </summary>
+    public string SaveDirectory;
+    /// <summary>
     /// 文件名追加时间戳
     /// </summary>
     public bool SaveTimestampFile;

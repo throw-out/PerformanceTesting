@@ -37,8 +37,8 @@ public static class ChartUtil
 
                     //使用get方式创建图表
                     string chartData = type == 0 ?
-                        JsonUtility.ToJson(QuickChart.ChartConfiguration.FromCpuUsed(states)) :
-                        JsonUtility.ToJson(QuickChart.ChartConfiguration.FromMemoryUsed(states));
+                        JsonUtility.ToJson(QuickChart.ChartConfiguration.FromCpuUsed(data.states)) :
+                        JsonUtility.ToJson(QuickChart.ChartConfiguration.FromMemoryUsed(data.states));
                     string url = "https://quickchart.io/chart?devicePixelRatio=2&chart=" + UnityWebRequest.EscapeURL(chartData);
                     return (url, null);
                 },

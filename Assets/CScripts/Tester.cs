@@ -171,9 +171,23 @@ public class Tester
         OnProgress(index, total);
     }
 
+    private string GetOutputDirectory(ExecuteSettings s, bool checkCreate = true)
+    {
+        string dirPath = rootPath;
+        if (!string.IsNullOrEmpty(s.SaveDirectory))
+        {
+            dirPath = Path.Combine(dirPath, s.SaveDirectory);
+        }
+        if (checkCreate && !Directory.Exists(dirPath))
+        {
+            Directory.CreateDirectory(dirPath);
+        }
+        return dirPath;
+    }
+
     private void SaveMarkdown(ExecuteSettings s, List<ExecuteStates> results, DateTime saveTime, out string statePath)
     {
-        statePath = Path.Combine(rootPath, s.SaveTimestampFile ? $"STATES_{saveTime:yyyyMMddHHmmss}.md" : $"STATES.md");
+        statePath = Path.Combine(GetOutputDirectory(s, true), s.SaveTimestampFile ? $"STATES_{saveTime:yyyyMMddHHmmss}.md" : $"STATES.md");
         if (IsLogger())
         {
             LoggerWrite(string.Empty);
@@ -213,7 +227,7 @@ public class Tester
                 string fileName = s.SaveTimestampFile ? $"CHART_{id}_{saveTime:yyyyMMddHHmmss}.png" : $"CHART_{id}.png";
                 charsFiles.Add(fileName);
 
-                var path = Path.Combine(rootPath, fileName);
+                var path = Path.Combine(GetOutputDirectory(s, true), fileName);
                 if (IsLogger())
                 {
                     LoggerWrite($"write to: {path}");
