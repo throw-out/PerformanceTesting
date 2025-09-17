@@ -87,6 +87,10 @@ public static class MarkdownUtil
     {
         StringBuilder builder = new StringBuilder();
         builder.AppendLine();
+        builder.AppendFormat("| Name            | Value             |");
+        builder.AppendLine();
+        builder.AppendFormat("| :----           | :----:            |");
+        builder.AppendLine();
         builder.AppendFormat("| CheckMemory     | {0}               |", settings.CheckMemory);
         builder.AppendLine();
         builder.AppendFormat("| Exclusive       | {0}               |", settings.Exclusive);

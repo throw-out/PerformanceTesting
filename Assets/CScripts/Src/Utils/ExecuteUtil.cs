@@ -124,7 +124,9 @@ public static class ExecuteUtil
         {
             if (checkMemory)
             {
+#if !UNITY_EDITOR
                 UnityEngine.Scripting.GarbageCollector.GCMode = UnityEngine.Scripting.GarbageCollector.Mode.Disabled;
+#endif
                 beforeMonoMemory = UnityEngine.Profiling.Profiler.GetMonoUsedSizeLong();
                 beforeNativeMemory = UnityEngine.Profiling.Profiler.GetTotalAllocatedMemoryLong();
             }
@@ -141,7 +143,9 @@ public static class ExecuteUtil
                     MonoMemory = UnityEngine.Profiling.Profiler.GetMonoUsedSizeLong() - beforeMonoMemory;
                     NativeMemory = UnityEngine.Profiling.Profiler.GetTotalAllocatedMemoryLong() - beforeNativeMemory;
                 }
+#if !UNITY_EDITOR
                 UnityEngine.Scripting.GarbageCollector.GCMode = UnityEngine.Scripting.GarbageCollector.Mode.Enabled;
+#endif
             }
         }
 
