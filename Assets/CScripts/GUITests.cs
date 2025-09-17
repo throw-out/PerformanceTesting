@@ -58,7 +58,7 @@ public class GUITests : MonoBehaviour
 #if UNITY_EDITOR
         outputPath = Path.Combine(Path.GetDirectoryName(Application.dataPath), "States");
 #elif UNITY_STANDALONE_WIN
-        outputPath = Application.dataPath;
+        outputPath = Path.GetDirectoryName(Application.dataPath);
 #else
         outputPath = Application.persistentDataPath;
 #endif

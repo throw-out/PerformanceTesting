@@ -31,10 +31,11 @@ public static class ExecuteUtil
             if (settings.Prepare)
             {
                 execute.Run(settings, mode);
+                settings.e.GarbageCollect();
             }
 
             //多次执行测试, 取平均值
-            long duration = -1, memory = -1;
+            long duration = -1, monoMemory = -1, nativeMemory = -1;
             object ret = null;
             if (settings.Debounce >= 3)
             {
@@ -48,9 +49,13 @@ public static class ExecuteUtil
                     watcher.Stop();
 
                     durations.Add(watcher.ElapsedMilliseconds);
-                    if (watcher.Memory > memory)
+                    if (watcher.MonoMemory > monoMemory)
                     {
-                        memory = watcher.Memory;
+                        monoMemory = watcher.MonoMemory;
+                    }
+                    if (watcher.NativeMemory > nativeMemory)
+                    {
+                        nativeMemory = watcher.NativeMemory;
                     }
                 }
                 durations.Sort();
@@ -58,11 +63,14 @@ public static class ExecuteUtil
             }
             else
             {
+                settings.e.GarbageCollect();
+
                 Watcher watcher = Watcher.StartNew(settings.CheckMemory);
                 ret = execute.Run(settings, mode);
                 watcher.Stop();
 
-                memory = watcher.Memory;
+                monoMemory = watcher.MonoMemory;
+                nativeMemory = watcher.NativeMemory;
                 duration = watcher.ElapsedMilliseconds;
             }
 
@@ -70,7 +78,8 @@ public static class ExecuteUtil
             {
                 Duration = duration,
                 Result = ret,
-                Memory = memory,
+                MonoMemory = monoMemory,
+                NativeMemory = nativeMemory,
             };
         }
         catch (Exception e)
@@ -91,12 +100,20 @@ public static class ExecuteUtil
     private class Watcher
     {
         private readonly bool checkMemory;
-        private long beforeTotalMemory;
+        private long beforeMonoMemory;
+        private long beforeNativeMemory;
         private System.Diagnostics.Stopwatch w;
-        private System.Diagnostics.Process p;
 
         public long ElapsedMilliseconds => w?.ElapsedMilliseconds ?? -1;
-        public long Memory { get; private set; } = -1;
+
+        /// <summary>
+        /// C#托管内存使用
+        /// </summary>
+        public long MonoMemory { get; private set; } = -1;
+        /// <summary>
+        /// Native非托管内存使用
+        /// </summary>
+        public long NativeMemory { get; private set; } = -1;
 
         public Watcher(bool checkMemory)
         {
@@ -107,12 +124,9 @@ public static class ExecuteUtil
         {
             if (checkMemory)
             {
-                p = System.Diagnostics.Process.GetCurrentProcess();
-
                 UnityEngine.Scripting.GarbageCollector.GCMode = UnityEngine.Scripting.GarbageCollector.Mode.Disabled;
-                //UnityEngine.Profiling.Profiler.GetTotalAllocatedMemoryLong();
-                //beforeTotalMemory = GC.GetTotalMemory(false);  //获取托管内存
-                beforeTotalMemory = p.PrivateMemorySize64;  //获取进程内存(包含托管和非托管)
+                beforeMonoMemory = UnityEngine.Profiling.Profiler.GetMonoUsedSizeLong();
+                beforeNativeMemory = UnityEngine.Profiling.Profiler.GetTotalAllocatedMemoryLong();
             }
             w = System.Diagnostics.Stopwatch.StartNew();
         }
@@ -122,10 +136,10 @@ public static class ExecuteUtil
 
             if (checkMemory)
             {
-                if (beforeTotalMemory > 0 && p != null)
+                if (beforeMonoMemory >= 0 || beforeNativeMemory >= 0)
                 {
-                    //Memory = GC.GetTotalMemory(false) - beforeTotalMemory;
-                    Memory = p.PrivateMemorySize64 - beforeTotalMemory;
+                    MonoMemory = UnityEngine.Profiling.Profiler.GetMonoUsedSizeLong() - beforeMonoMemory;
+                    NativeMemory = UnityEngine.Profiling.Profiler.GetTotalAllocatedMemoryLong() - beforeNativeMemory;
                 }
                 UnityEngine.Scripting.GarbageCollector.GCMode = UnityEngine.Scripting.GarbageCollector.Mode.Enabled;
             }

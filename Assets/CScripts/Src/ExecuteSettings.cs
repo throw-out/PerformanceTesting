@@ -84,7 +84,14 @@ public class ExecuteSettings
         }
         public void Clear()
         {
-            xlua?.Dispose();
+            try
+            {
+                xlua?.Dispose();
+            }
+            catch (Exception e)
+            {
+                UnityEngine.Debug.LogException(e);
+            }
             puertsV8?.Dispose();
             puertsQuickjs?.Dispose();
             puertsLua?.Dispose();

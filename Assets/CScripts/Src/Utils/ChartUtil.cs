@@ -239,7 +239,7 @@ namespace QuickChart
         }
         private static double GetMemory(ExecuteStates state, string key, double defaultValue = 0)
         {
-            long duration = state.Results != null && state.Results.TryGetValue(key, out var data) ? data.Memory : -1;
+            long duration = state.Results != null && state.Results.TryGetValue(key, out var data) ? data.MonoMemory : -1;
             if (duration < 0)
                 return defaultValue;
             return duration;

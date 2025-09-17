@@ -176,9 +176,9 @@ public static class MarkdownUtil
                 return $"{size}B";
             double s = size / 1024d;
             if (s <= 1024)
-                return $"{size:f2}KB";
-            s = size / 1024d;
-            return $"{size:f2}MB";
+                return $"{s:f2}KB";
+            s = s / 1024d;
+            return $"{s:f2}MB";
         }
 
         string[] keys = states.FirstOrDefault(s => s.Results != null && s.Results.Count > 0).Results?.Keys.ToArray();
@@ -220,7 +220,7 @@ public static class MarkdownUtil
                 builder.Append(FormatDuration(data.Duration));
                 if (settings.CheckMemory)
                 {
-                    builder.AppendFormat("<br>{0}", FormatMemorySize(data.Memory));
+                    builder.AppendFormat("<br>{0} / {1}", FormatMemorySize(data.MonoMemory), FormatMemorySize(data.NativeMemory));
                 }
                 if (hasAnyResult)
                 {
