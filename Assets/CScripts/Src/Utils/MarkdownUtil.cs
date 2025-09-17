@@ -36,6 +36,12 @@ public static class MarkdownUtil
 
         builder.AppendLine();
         builder.Append("# 所有数据");
+        if (settings.CheckMemory)
+        {
+            builder.AppendLine();
+            builder.Append("**⚠警告: 内存使用统计仅作参考, 其结果并不完全可靠(js虚拟机无法暂停GC)。**");
+            builder.AppendLine();
+        }
         builder.Append(FromatToTable(settings, states));
         builder.AppendLine();
 

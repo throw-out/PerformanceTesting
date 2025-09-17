@@ -18,6 +18,43 @@ public abstract class ExecuteBase
     private int count;
     private Delegate workload;
 
+    /// <summary>
+    /// 设置虚拟机GC开启或关闭
+    /// </summary>
+    public virtual void SetGarbageCollect(ExecuteSettings settings, ExecuteMode mode, bool enabled)
+    {
+        switch (mode)
+        {
+            case ExecuteMode.CSharp:
+                // do nothing
+                break;
+            case ExecuteMode.XLua:
+                {
+                    string code = enabled ? "collectgarbage('restart');collectgarbage('collect');" : "collectgarbage('stop');";
+                    settings.e.xlua.DoString(code);
+                }
+                break;
+            case ExecuteMode.PuertsWithV8:
+                //not implemented interface
+                break;
+            case ExecuteMode.PuertsWithQuickjs:
+                //not implemented interface
+                break;
+            case ExecuteMode.PuertsWithLua:
+                {
+                    string code = enabled ? "collectgarbage('restart');collectgarbage('collect');" : "collectgarbage('stop');";
+                    settings.e.puertsLua.Eval(code);
+                }
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(mode), mode, "unsupport mode");
+                //break;
+        }
+    }
+
+    /// <summary>
+    /// 初始化环境
+    /// </summary>
     public virtual void Init(ExecuteSettings settings, ExecuteMode mode, int count)
     {
         this.count = count;
@@ -43,10 +80,16 @@ public abstract class ExecuteBase
                 //break;
         }
     }
+    /// <summary>
+    /// 执行测试
+    /// </summary>
     public virtual object Run(ExecuteSettings settings, ExecuteMode mode)
     {
         return Invoke(workload, count);
     }
+    /// <summary>
+    /// 清理环境
+    /// </summary>
     public virtual void Clear()
     {
         count = 0;

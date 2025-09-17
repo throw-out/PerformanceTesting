@@ -42,11 +42,23 @@ public static class ExecuteUtil
                 List<long> durations = new List<long>(settings.Debounce);
                 for (int i = 0; i < settings.Debounce; i++)
                 {
+                    //先执行一次完整的GC
                     settings.e.GarbageCollect();
+                    //尝试暂停虚拟机GC
+                    if (settings.CheckMemory)
+                    {
+                        execute.SetGarbageCollect(settings, mode, false);
+                    }
 
                     Watcher watcher = Watcher.StartNew(settings.CheckMemory);
                     ret = execute.Run(settings, mode);
                     watcher.Stop();
+
+                    //还原虚拟机GC
+                    if (settings.CheckMemory)
+                    {
+                        execute.SetGarbageCollect(settings, mode, true);
+                    }
 
                     durations.Add(watcher.ElapsedMilliseconds);
                     if (watcher.MonoMemory > monoMemory)
@@ -63,11 +75,23 @@ public static class ExecuteUtil
             }
             else
             {
+                //先执行一次完整的GC
                 settings.e.GarbageCollect();
+                //尝试暂停虚拟机GC
+                if (settings.CheckMemory)
+                {
+                    execute.SetGarbageCollect(settings, mode, false);
+                }
 
                 Watcher watcher = Watcher.StartNew(settings.CheckMemory);
                 ret = execute.Run(settings, mode);
                 watcher.Stop();
+
+                //还原虚拟机GC
+                if (settings.CheckMemory)
+                {
+                    execute.SetGarbageCollect(settings, mode, true);
+                }
 
                 monoMemory = watcher.MonoMemory;
                 nativeMemory = watcher.NativeMemory;
