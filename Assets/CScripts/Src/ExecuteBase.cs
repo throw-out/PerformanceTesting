@@ -18,11 +18,13 @@ public abstract class ExecuteBase
     private int count;
     private Delegate workload;
 
-    /// <summary>
-    /// 设置虚拟机GC开启或关闭
-    /// </summary>
-    public virtual void SetGarbageCollect(ExecuteSettings settings, ExecuteMode mode, bool enabled)
+    private ParamsBoolean setGC;
+    private ReturnDouble getGCCount;
+
+    public virtual void InitGarbageCollect(ExecuteSettings settings, ExecuteMode mode)
     {
+        if (!settings.CheckMemory)
+            return;
         switch (mode)
         {
             case ExecuteMode.CSharp:
@@ -30,8 +32,10 @@ public abstract class ExecuteBase
                 break;
             case ExecuteMode.XLua:
                 {
-                    string code = enabled ? "collectgarbage('restart');collectgarbage('collect');" : "collectgarbage('stop');";
-                    settings.e.xlua.DoString(code);
+                    var creator1 = settings.e.xlua.LoadString<ParamsBoolean_Creator>(Utils.LuaGCControllerCode);
+                    setGC = creator1();
+                    var creator2 = settings.e.xlua.LoadString<ReturnDouble_Creator>(Utils.LuaGCCountCode);
+                    getGCCount = creator2();
                 }
                 break;
             case ExecuteMode.PuertsWithV8:
@@ -42,14 +46,32 @@ public abstract class ExecuteBase
                 break;
             case ExecuteMode.PuertsWithLua:
                 {
-                    string code = enabled ? "collectgarbage('restart');collectgarbage('collect');" : "collectgarbage('stop');";
-                    settings.e.puertsLua.Eval(code);
+                    setGC = settings.e.puertsLua.Eval<ParamsBoolean>(Utils.LuaGCControllerCode);
+                    getGCCount = settings.e.puertsLua.Eval<ReturnDouble>(Utils.LuaGCCountCode);
                 }
                 break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(mode), mode, "unsupport mode");
                 //break;
         }
+    }
+    /// <summary>
+    /// 设置虚拟机GC开启或关闭
+    /// </summary>
+    public virtual void SetGarbageCollect(bool enabled)
+    {
+        if (setGC == null)
+            return;
+        setGC(enabled);
+    }
+    /// <summary>
+    /// 获取虚拟机内存大小(单位B)
+    /// </summary>
+    public virtual long GetGarbageCollectMemory()
+    {
+        if (getGCCount == null)
+            return -1;
+        return (long)Math.Ceiling(getGCCount());
     }
 
     /// <summary>
@@ -94,7 +116,19 @@ public abstract class ExecuteBase
     {
         count = 0;
         workload = null;
+        setGC = null;
+        getGCCount = null;
     }
+
+    [CSharpCallLua]
+    public delegate void ParamsBoolean(bool p1);
+    [CSharpCallLua]
+    public delegate ParamsBoolean ParamsBoolean_Creator();
+
+    [CSharpCallLua]
+    public delegate double ReturnDouble();
+    [CSharpCallLua]
+    public delegate ReturnDouble ReturnDouble_Creator();
 
     [CSharpCallLua]
     public delegate Action Action_Creator();
@@ -141,4 +175,30 @@ public abstract class ExecuteBase
     public delegate void ParamsTransformVector3(Transform p1, Vector3 p2);
     [CSharpCallLua]
     public delegate ParamsTransformVector3 ParamsTransformVector3_Creator();
+
+    private static class Utils
+    {
+        public const string LuaGCControllerCode = @"
+local setGC = (function()
+    local s1, s2, s3 = 'restart', 'collect', 'stop'
+    return function(enabled)
+        if enabled then 
+            collectgarbage(s1);
+            collectgarbage(s2);
+        else
+            collectgarbage(s3);
+        end
+    end
+end)()
+return setGC;";
+        public const string LuaGCCountCode = @"
+local getGCCount = (function()
+    local s1 = 'count'
+    return function()
+        local count = collectgarbage(s1);
+        return count * 1024
+    end
+end)()
+return getGCCount;";
+    }
 }

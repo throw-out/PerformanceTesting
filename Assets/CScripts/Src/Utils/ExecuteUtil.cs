@@ -27,6 +27,7 @@ public static class ExecuteUtil
         try
         {
             execute.Init(settings, mode, count);
+            execute.InitGarbageCollect(settings, mode);
             //预执行代码
             if (settings.Prepare)
             {
@@ -35,7 +36,7 @@ public static class ExecuteUtil
             }
 
             //多次执行测试, 取平均值
-            long duration = -1, monoMemory = -1, nativeMemory = -1;
+            long duration = -1, monoMemory = -1, nativeMemory = -1, envMemory = -1;
             object ret = null;
             if (settings.Debounce >= 3)
             {
@@ -45,29 +46,21 @@ public static class ExecuteUtil
                     //先执行一次完整的GC
                     settings.e.GarbageCollect();
                     //尝试暂停虚拟机GC
-                    if (settings.CheckMemory)
-                    {
-                        execute.SetGarbageCollect(settings, mode, false);
-                    }
+                    execute.SetGarbageCollect(false);
 
-                    Watcher watcher = Watcher.StartNew(settings.CheckMemory);
+                    Watcher watcher = Watcher.StartNew(settings.CheckMemory, execute.GetGarbageCollectMemory);
                     ret = execute.Run(settings, mode);
                     watcher.Stop();
 
                     //还原虚拟机GC
-                    if (settings.CheckMemory)
-                    {
-                        execute.SetGarbageCollect(settings, mode, true);
-                    }
+                    execute.SetGarbageCollect(true);
 
                     durations.Add(watcher.ElapsedMilliseconds);
-                    if (watcher.MonoMemory > monoMemory)
+                    if (i == 0)
                     {
                         monoMemory = watcher.MonoMemory;
-                    }
-                    if (watcher.NativeMemory > nativeMemory)
-                    {
                         nativeMemory = watcher.NativeMemory;
+                        envMemory = watcher.EnvMemory;
                     }
                 }
                 durations.Sort();
@@ -78,24 +71,19 @@ public static class ExecuteUtil
                 //先执行一次完整的GC
                 settings.e.GarbageCollect();
                 //尝试暂停虚拟机GC
-                if (settings.CheckMemory)
-                {
-                    execute.SetGarbageCollect(settings, mode, false);
-                }
+                execute.SetGarbageCollect(false);
 
-                Watcher watcher = Watcher.StartNew(settings.CheckMemory);
+                Watcher watcher = Watcher.StartNew(settings.CheckMemory, execute.GetGarbageCollectMemory);
                 ret = execute.Run(settings, mode);
                 watcher.Stop();
 
                 //还原虚拟机GC
-                if (settings.CheckMemory)
-                {
-                    execute.SetGarbageCollect(settings, mode, true);
-                }
+                execute.SetGarbageCollect(true);
 
+                duration = watcher.ElapsedMilliseconds;
                 monoMemory = watcher.MonoMemory;
                 nativeMemory = watcher.NativeMemory;
-                duration = watcher.ElapsedMilliseconds;
+                envMemory = watcher.EnvMemory;
             }
 
             data = new ExecuteData()
@@ -104,6 +92,7 @@ public static class ExecuteUtil
                 Result = ret,
                 MonoMemory = monoMemory,
                 NativeMemory = nativeMemory,
+                EnvMemory = envMemory,
             };
         }
         catch (Exception e)
@@ -124,8 +113,11 @@ public static class ExecuteUtil
     private class Watcher
     {
         private readonly bool checkMemory;
+        private readonly Func<long> GetEnvMemory;
+
         private long beforeMonoMemory;
         private long beforeNativeMemory;
+        private long beforeEnvMemory;
         private System.Diagnostics.Stopwatch w;
 
         public long ElapsedMilliseconds => w?.ElapsedMilliseconds ?? -1;
@@ -138,10 +130,15 @@ public static class ExecuteUtil
         /// Native非托管内存使用
         /// </summary>
         public long NativeMemory { get; private set; } = -1;
+        /// <summary>
+        /// 虚拟机内存占用
+        /// </summary>
+        public long EnvMemory { get; private set; } = -1;
 
-        public Watcher(bool checkMemory)
+        public Watcher(bool checkMemory, Func<long> getEnvMemory)
         {
             this.checkMemory = checkMemory;
+            this.GetEnvMemory = getEnvMemory;
         }
 
         public void Start()
@@ -153,6 +150,7 @@ public static class ExecuteUtil
 #endif
                 beforeMonoMemory = UnityEngine.Profiling.Profiler.GetMonoUsedSizeLong();
                 beforeNativeMemory = UnityEngine.Profiling.Profiler.GetTotalAllocatedMemoryLong();
+                beforeEnvMemory = GetEnvMemory?.Invoke() ?? -1;
             }
             w = System.Diagnostics.Stopwatch.StartNew();
         }
@@ -162,10 +160,17 @@ public static class ExecuteUtil
 
             if (checkMemory)
             {
-                if (beforeMonoMemory >= 0 || beforeNativeMemory >= 0)
+                if (beforeMonoMemory >= 0)
                 {
                     MonoMemory = UnityEngine.Profiling.Profiler.GetMonoUsedSizeLong() - beforeMonoMemory;
+                }
+                if (beforeNativeMemory >= 0)
+                {
                     NativeMemory = UnityEngine.Profiling.Profiler.GetTotalAllocatedMemoryLong() - beforeNativeMemory;
+                }
+                if (beforeEnvMemory >= 0 && GetEnvMemory != null)
+                {
+                    EnvMemory = GetEnvMemory() - beforeEnvMemory;
                 }
 #if !UNITY_EDITOR
                 UnityEngine.Scripting.GarbageCollector.GCMode = UnityEngine.Scripting.GarbageCollector.Mode.Enabled;
@@ -173,9 +178,9 @@ public static class ExecuteUtil
             }
         }
 
-        public static Watcher StartNew(bool checkMemory)
+        public static Watcher StartNew(bool checkMemory, Func<long> getEnvMemory)
         {
-            var watcher = new Watcher(checkMemory);
+            var watcher = new Watcher(checkMemory, getEnvMemory);
             watcher.Start();
             return watcher;
         }

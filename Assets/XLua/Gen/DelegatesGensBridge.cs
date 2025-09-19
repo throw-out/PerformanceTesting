@@ -16,7 +16,92 @@ namespace XLua
     public partial class DelegateBridge : DelegateBridgeBase
     {
 		
-		public System.Action __Gen_Delegate_Imp0()
+		public void __Gen_Delegate_Imp0(bool p0)
+		{
+#if THREAD_SAFE || HOTFIX_ENABLE
+            lock (luaEnv.luaEnvLock)
+            {
+#endif
+                RealStatePtr L = luaEnv.rawL;
+                int errFunc = LuaAPI.pcall_prepare(L, errorFuncRef, luaReference);
+                
+                LuaAPI.lua_pushboolean(L, p0);
+                
+                PCall(L, 1, 0, errFunc);
+                
+                
+                
+                LuaAPI.lua_settop(L, errFunc - 1);
+                
+#if THREAD_SAFE || HOTFIX_ENABLE
+            }
+#endif
+		}
+        
+		public ExecuteBase.ParamsBoolean __Gen_Delegate_Imp1()
+		{
+#if THREAD_SAFE || HOTFIX_ENABLE
+            lock (luaEnv.luaEnvLock)
+            {
+#endif
+                RealStatePtr L = luaEnv.rawL;
+                int errFunc = LuaAPI.pcall_prepare(L, errorFuncRef, luaReference);
+                ObjectTranslator translator = luaEnv.translator;
+                
+                PCall(L, 0, 1, errFunc);
+                
+                
+                ExecuteBase.ParamsBoolean __gen_ret = translator.GetDelegate<ExecuteBase.ParamsBoolean>(L, errFunc + 1);
+                LuaAPI.lua_settop(L, errFunc - 1);
+                return  __gen_ret;
+#if THREAD_SAFE || HOTFIX_ENABLE
+            }
+#endif
+		}
+        
+		public double __Gen_Delegate_Imp2()
+		{
+#if THREAD_SAFE || HOTFIX_ENABLE
+            lock (luaEnv.luaEnvLock)
+            {
+#endif
+                RealStatePtr L = luaEnv.rawL;
+                int errFunc = LuaAPI.pcall_prepare(L, errorFuncRef, luaReference);
+                
+                
+                PCall(L, 0, 1, errFunc);
+                
+                
+                double __gen_ret = LuaAPI.lua_tonumber(L, errFunc + 1);
+                LuaAPI.lua_settop(L, errFunc - 1);
+                return  __gen_ret;
+#if THREAD_SAFE || HOTFIX_ENABLE
+            }
+#endif
+		}
+        
+		public ExecuteBase.ReturnDouble __Gen_Delegate_Imp3()
+		{
+#if THREAD_SAFE || HOTFIX_ENABLE
+            lock (luaEnv.luaEnvLock)
+            {
+#endif
+                RealStatePtr L = luaEnv.rawL;
+                int errFunc = LuaAPI.pcall_prepare(L, errorFuncRef, luaReference);
+                ObjectTranslator translator = luaEnv.translator;
+                
+                PCall(L, 0, 1, errFunc);
+                
+                
+                ExecuteBase.ReturnDouble __gen_ret = translator.GetDelegate<ExecuteBase.ReturnDouble>(L, errFunc + 1);
+                LuaAPI.lua_settop(L, errFunc - 1);
+                return  __gen_ret;
+#if THREAD_SAFE || HOTFIX_ENABLE
+            }
+#endif
+		}
+        
+		public System.Action __Gen_Delegate_Imp4()
 		{
 #if THREAD_SAFE || HOTFIX_ENABLE
             lock (luaEnv.luaEnvLock)
@@ -37,7 +122,7 @@ namespace XLua
 #endif
 		}
         
-		public float __Gen_Delegate_Imp1()
+		public float __Gen_Delegate_Imp5()
 		{
 #if THREAD_SAFE || HOTFIX_ENABLE
             lock (luaEnv.luaEnvLock)
@@ -58,7 +143,7 @@ namespace XLua
 #endif
 		}
         
-		public ExecuteBase.ReturnFloat __Gen_Delegate_Imp2()
+		public ExecuteBase.ReturnFloat __Gen_Delegate_Imp6()
 		{
 #if THREAD_SAFE || HOTFIX_ENABLE
             lock (luaEnv.luaEnvLock)
@@ -79,7 +164,7 @@ namespace XLua
 #endif
 		}
         
-		public UnityEngine.Quaternion __Gen_Delegate_Imp3()
+		public UnityEngine.Quaternion __Gen_Delegate_Imp7()
 		{
 #if THREAD_SAFE || HOTFIX_ENABLE
             lock (luaEnv.luaEnvLock)
@@ -100,7 +185,7 @@ namespace XLua
 #endif
 		}
         
-		public ExecuteBase.ReturnQuaternion __Gen_Delegate_Imp4()
+		public ExecuteBase.ReturnQuaternion __Gen_Delegate_Imp8()
 		{
 #if THREAD_SAFE || HOTFIX_ENABLE
             lock (luaEnv.luaEnvLock)
@@ -121,7 +206,7 @@ namespace XLua
 #endif
 		}
         
-		public void __Gen_Delegate_Imp5(int p0)
+		public void __Gen_Delegate_Imp9(int p0)
 		{
 #if THREAD_SAFE || HOTFIX_ENABLE
             lock (luaEnv.luaEnvLock)
@@ -143,7 +228,7 @@ namespace XLua
 #endif
 		}
         
-		public ExecuteBase.ParamsInt __Gen_Delegate_Imp6()
+		public ExecuteBase.ParamsInt __Gen_Delegate_Imp10()
 		{
 #if THREAD_SAFE || HOTFIX_ENABLE
             lock (luaEnv.luaEnvLock)
@@ -164,7 +249,7 @@ namespace XLua
 #endif
 		}
         
-		public void __Gen_Delegate_Imp7(int p0, int p1, float p2)
+		public void __Gen_Delegate_Imp11(int p0, int p1, float p2)
 		{
 #if THREAD_SAFE || HOTFIX_ENABLE
             lock (luaEnv.luaEnvLock)
@@ -188,7 +273,7 @@ namespace XLua
 #endif
 		}
         
-		public ExecuteBase.ParamsIntIntFloat __Gen_Delegate_Imp8()
+		public ExecuteBase.ParamsIntIntFloat __Gen_Delegate_Imp12()
 		{
 #if THREAD_SAFE || HOTFIX_ENABLE
             lock (luaEnv.luaEnvLock)
@@ -209,7 +294,7 @@ namespace XLua
 #endif
 		}
         
-		public float __Gen_Delegate_Imp9(int p0, int p1, float p2)
+		public float __Gen_Delegate_Imp13(int p0, int p1, float p2)
 		{
 #if THREAD_SAFE || HOTFIX_ENABLE
             lock (luaEnv.luaEnvLock)
@@ -233,7 +318,7 @@ namespace XLua
 #endif
 		}
         
-		public ExecuteBase.ParamsIntIntFloat_ReturnFloat __Gen_Delegate_Imp10()
+		public ExecuteBase.ParamsIntIntFloat_ReturnFloat __Gen_Delegate_Imp14()
 		{
 #if THREAD_SAFE || HOTFIX_ENABLE
             lock (luaEnv.luaEnvLock)
@@ -254,7 +339,7 @@ namespace XLua
 #endif
 		}
         
-		public void __Gen_Delegate_Imp11(UnityEngine.Transform p0)
+		public void __Gen_Delegate_Imp15(UnityEngine.Transform p0)
 		{
 #if THREAD_SAFE || HOTFIX_ENABLE
             lock (luaEnv.luaEnvLock)
@@ -276,7 +361,7 @@ namespace XLua
 #endif
 		}
         
-		public ExecuteBase.ParamsTransform __Gen_Delegate_Imp12()
+		public ExecuteBase.ParamsTransform __Gen_Delegate_Imp16()
 		{
 #if THREAD_SAFE || HOTFIX_ENABLE
             lock (luaEnv.luaEnvLock)
@@ -297,7 +382,7 @@ namespace XLua
 #endif
 		}
         
-		public void __Gen_Delegate_Imp13(UnityEngine.Transform p0, float p1, float p2, float p3)
+		public void __Gen_Delegate_Imp17(UnityEngine.Transform p0, float p1, float p2, float p3)
 		{
 #if THREAD_SAFE || HOTFIX_ENABLE
             lock (luaEnv.luaEnvLock)
@@ -322,7 +407,7 @@ namespace XLua
 #endif
 		}
         
-		public ExecuteBase.ParamsTransformFloatFloatFloat __Gen_Delegate_Imp14()
+		public ExecuteBase.ParamsTransformFloatFloatFloat __Gen_Delegate_Imp18()
 		{
 #if THREAD_SAFE || HOTFIX_ENABLE
             lock (luaEnv.luaEnvLock)
@@ -343,7 +428,7 @@ namespace XLua
 #endif
 		}
         
-		public void __Gen_Delegate_Imp15(UnityEngine.Transform p0, UnityEngine.Vector3 p1)
+		public void __Gen_Delegate_Imp19(UnityEngine.Transform p0, UnityEngine.Vector3 p1)
 		{
 #if THREAD_SAFE || HOTFIX_ENABLE
             lock (luaEnv.luaEnvLock)
@@ -366,7 +451,7 @@ namespace XLua
 #endif
 		}
         
-		public ExecuteBase.ParamsTransformVector3 __Gen_Delegate_Imp16()
+		public ExecuteBase.ParamsTransformVector3 __Gen_Delegate_Imp20()
 		{
 #if THREAD_SAFE || HOTFIX_ENABLE
             lock (luaEnv.luaEnvLock)
@@ -387,7 +472,7 @@ namespace XLua
 #endif
 		}
         
-		public bool __Gen_Delegate_Imp17(System.IntPtr p0, int p1)
+		public bool __Gen_Delegate_Imp21(System.IntPtr p0, int p1)
 		{
 #if THREAD_SAFE || HOTFIX_ENABLE
             lock (luaEnv.luaEnvLock)
@@ -410,7 +495,7 @@ namespace XLua
 #endif
 		}
         
-		public object __Gen_Delegate_Imp18(System.IntPtr p0, int p1, object p2)
+		public object __Gen_Delegate_Imp22(System.IntPtr p0, int p1, object p2)
 		{
 #if THREAD_SAFE || HOTFIX_ENABLE
             lock (luaEnv.luaEnvLock)
@@ -434,7 +519,7 @@ namespace XLua
 #endif
 		}
         
-		public int __Gen_Delegate_Imp19(System.IntPtr p0)
+		public int __Gen_Delegate_Imp23(System.IntPtr p0)
 		{
 #if THREAD_SAFE || HOTFIX_ENABLE
             lock (luaEnv.luaEnvLock)
@@ -456,7 +541,7 @@ namespace XLua
 #endif
 		}
         
-		public void __Gen_Delegate_Imp20(System.IntPtr p0, object p1)
+		public void __Gen_Delegate_Imp24(System.IntPtr p0, object p1)
 		{
 #if THREAD_SAFE || HOTFIX_ENABLE
             lock (luaEnv.luaEnvLock)
@@ -479,7 +564,7 @@ namespace XLua
 #endif
 		}
         
-		public object __Gen_Delegate_Imp21(System.IntPtr p0, int p1)
+		public object __Gen_Delegate_Imp25(System.IntPtr p0, int p1)
 		{
 #if THREAD_SAFE || HOTFIX_ENABLE
             lock (luaEnv.luaEnvLock)
@@ -502,7 +587,7 @@ namespace XLua
 #endif
 		}
         
-		public void __Gen_Delegate_Imp22(System.IntPtr p0, int p1, object p2)
+		public void __Gen_Delegate_Imp26(System.IntPtr p0, int p1, object p2)
 		{
 #if THREAD_SAFE || HOTFIX_ENABLE
             lock (luaEnv.luaEnvLock)
@@ -526,7 +611,7 @@ namespace XLua
 #endif
 		}
         
-		public byte[] __Gen_Delegate_Imp23(ref string p0)
+		public byte[] __Gen_Delegate_Imp27(ref string p0)
 		{
 #if THREAD_SAFE || HOTFIX_ENABLE
             lock (luaEnv.luaEnvLock)
@@ -558,124 +643,144 @@ namespace XLua
 		public override Delegate GetDelegateByType(Type type)
 		{
 		
+		    if (type == typeof(ExecuteBase.ParamsBoolean))
+			{
+			    return new ExecuteBase.ParamsBoolean(__Gen_Delegate_Imp0);
+			}
+		
+		    if (type == typeof(ExecuteBase.ParamsBoolean_Creator))
+			{
+			    return new ExecuteBase.ParamsBoolean_Creator(__Gen_Delegate_Imp1);
+			}
+		
+		    if (type == typeof(ExecuteBase.ReturnDouble))
+			{
+			    return new ExecuteBase.ReturnDouble(__Gen_Delegate_Imp2);
+			}
+		
+		    if (type == typeof(ExecuteBase.ReturnDouble_Creator))
+			{
+			    return new ExecuteBase.ReturnDouble_Creator(__Gen_Delegate_Imp3);
+			}
+		
 		    if (type == typeof(ExecuteBase.Action_Creator))
 			{
-			    return new ExecuteBase.Action_Creator(__Gen_Delegate_Imp0);
+			    return new ExecuteBase.Action_Creator(__Gen_Delegate_Imp4);
 			}
 		
 		    if (type == typeof(ExecuteBase.ReturnFloat))
 			{
-			    return new ExecuteBase.ReturnFloat(__Gen_Delegate_Imp1);
+			    return new ExecuteBase.ReturnFloat(__Gen_Delegate_Imp5);
 			}
 		
 		    if (type == typeof(ExecuteBase.ReturnFloat_Creator))
 			{
-			    return new ExecuteBase.ReturnFloat_Creator(__Gen_Delegate_Imp2);
+			    return new ExecuteBase.ReturnFloat_Creator(__Gen_Delegate_Imp6);
 			}
 		
 		    if (type == typeof(ExecuteBase.ReturnQuaternion))
 			{
-			    return new ExecuteBase.ReturnQuaternion(__Gen_Delegate_Imp3);
+			    return new ExecuteBase.ReturnQuaternion(__Gen_Delegate_Imp7);
 			}
 		
 		    if (type == typeof(ExecuteBase.ReturnQuaternion_Creator))
 			{
-			    return new ExecuteBase.ReturnQuaternion_Creator(__Gen_Delegate_Imp4);
+			    return new ExecuteBase.ReturnQuaternion_Creator(__Gen_Delegate_Imp8);
 			}
 		
 		    if (type == typeof(ExecuteBase.ParamsInt))
 			{
-			    return new ExecuteBase.ParamsInt(__Gen_Delegate_Imp5);
+			    return new ExecuteBase.ParamsInt(__Gen_Delegate_Imp9);
 			}
 		
 		    if (type == typeof(ExecuteBase.ParamsInt_Creator))
 			{
-			    return new ExecuteBase.ParamsInt_Creator(__Gen_Delegate_Imp6);
+			    return new ExecuteBase.ParamsInt_Creator(__Gen_Delegate_Imp10);
 			}
 		
 		    if (type == typeof(ExecuteBase.ParamsIntIntFloat))
 			{
-			    return new ExecuteBase.ParamsIntIntFloat(__Gen_Delegate_Imp7);
+			    return new ExecuteBase.ParamsIntIntFloat(__Gen_Delegate_Imp11);
 			}
 		
 		    if (type == typeof(ExecuteBase.ParamsIntIntFloat_Creator))
 			{
-			    return new ExecuteBase.ParamsIntIntFloat_Creator(__Gen_Delegate_Imp8);
+			    return new ExecuteBase.ParamsIntIntFloat_Creator(__Gen_Delegate_Imp12);
 			}
 		
 		    if (type == typeof(ExecuteBase.ParamsIntIntFloat_ReturnFloat))
 			{
-			    return new ExecuteBase.ParamsIntIntFloat_ReturnFloat(__Gen_Delegate_Imp9);
+			    return new ExecuteBase.ParamsIntIntFloat_ReturnFloat(__Gen_Delegate_Imp13);
 			}
 		
 		    if (type == typeof(ExecuteBase.ParamsIntIntFloat_ReturnFloat_Creator))
 			{
-			    return new ExecuteBase.ParamsIntIntFloat_ReturnFloat_Creator(__Gen_Delegate_Imp10);
+			    return new ExecuteBase.ParamsIntIntFloat_ReturnFloat_Creator(__Gen_Delegate_Imp14);
 			}
 		
 		    if (type == typeof(ExecuteBase.ParamsTransform))
 			{
-			    return new ExecuteBase.ParamsTransform(__Gen_Delegate_Imp11);
+			    return new ExecuteBase.ParamsTransform(__Gen_Delegate_Imp15);
 			}
 		
 		    if (type == typeof(ExecuteBase.ParamsTransform_Creator))
 			{
-			    return new ExecuteBase.ParamsTransform_Creator(__Gen_Delegate_Imp12);
+			    return new ExecuteBase.ParamsTransform_Creator(__Gen_Delegate_Imp16);
 			}
 		
 		    if (type == typeof(ExecuteBase.ParamsTransformFloatFloatFloat))
 			{
-			    return new ExecuteBase.ParamsTransformFloatFloatFloat(__Gen_Delegate_Imp13);
+			    return new ExecuteBase.ParamsTransformFloatFloatFloat(__Gen_Delegate_Imp17);
 			}
 		
 		    if (type == typeof(ExecuteBase.ParamsTransformFloatFloatFloat_Creator))
 			{
-			    return new ExecuteBase.ParamsTransformFloatFloatFloat_Creator(__Gen_Delegate_Imp14);
+			    return new ExecuteBase.ParamsTransformFloatFloatFloat_Creator(__Gen_Delegate_Imp18);
 			}
 		
 		    if (type == typeof(ExecuteBase.ParamsTransformVector3))
 			{
-			    return new ExecuteBase.ParamsTransformVector3(__Gen_Delegate_Imp15);
+			    return new ExecuteBase.ParamsTransformVector3(__Gen_Delegate_Imp19);
 			}
 		
 		    if (type == typeof(ExecuteBase.ParamsTransformVector3_Creator))
 			{
-			    return new ExecuteBase.ParamsTransformVector3_Creator(__Gen_Delegate_Imp16);
+			    return new ExecuteBase.ParamsTransformVector3_Creator(__Gen_Delegate_Imp20);
 			}
 		
 		    if (type == typeof(XLua.ObjectCheck))
 			{
-			    return new XLua.ObjectCheck(__Gen_Delegate_Imp17);
+			    return new XLua.ObjectCheck(__Gen_Delegate_Imp21);
 			}
 		
 		    if (type == typeof(XLua.ObjectCast))
 			{
-			    return new XLua.ObjectCast(__Gen_Delegate_Imp18);
+			    return new XLua.ObjectCast(__Gen_Delegate_Imp22);
 			}
 		
 		    if (type == typeof(XLua.LuaDLL.lua_CSFunction))
 			{
-			    return new XLua.LuaDLL.lua_CSFunction(__Gen_Delegate_Imp19);
+			    return new XLua.LuaDLL.lua_CSFunction(__Gen_Delegate_Imp23);
 			}
 		
 		    if (type == typeof(XLua.ObjectTranslator.PushCSObject))
 			{
-			    return new XLua.ObjectTranslator.PushCSObject(__Gen_Delegate_Imp20);
+			    return new XLua.ObjectTranslator.PushCSObject(__Gen_Delegate_Imp24);
 			}
 		
 		    if (type == typeof(XLua.ObjectTranslator.GetCSObject))
 			{
-			    return new XLua.ObjectTranslator.GetCSObject(__Gen_Delegate_Imp21);
+			    return new XLua.ObjectTranslator.GetCSObject(__Gen_Delegate_Imp25);
 			}
 		
 		    if (type == typeof(XLua.ObjectTranslator.UpdateCSObject))
 			{
-			    return new XLua.ObjectTranslator.UpdateCSObject(__Gen_Delegate_Imp22);
+			    return new XLua.ObjectTranslator.UpdateCSObject(__Gen_Delegate_Imp26);
 			}
 		
 		    if (type == typeof(XLua.LuaEnv.CustomLoader))
 			{
-			    return new XLua.LuaEnv.CustomLoader(__Gen_Delegate_Imp23);
+			    return new XLua.LuaEnv.CustomLoader(__Gen_Delegate_Imp27);
 			}
 		
 		    return null;

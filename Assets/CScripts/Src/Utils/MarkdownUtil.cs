@@ -39,7 +39,13 @@ public static class MarkdownUtil
         if (settings.CheckMemory)
         {
             builder.AppendLine();
-            builder.Append("**⚠警告: 内存使用统计仅作参考, 其结果并不完全可靠(js虚拟机无法暂停GC)。**");
+            builder.Append("**⚠警告: 内存使用统计仅作参考, 其结果并不完全可靠(js虚拟机无法暂停GC)。** <br>");
+            builder.AppendLine();
+            builder.Append("**<font color=\"red\">红色:</font> 表示托管内存(C#)** <br>");
+            builder.AppendLine();
+            builder.Append("**<font color=\"blue\">蓝色:</font> 表示非托管内存** <br>");
+            builder.AppendLine();
+            builder.Append("**<font color=\"green\">绿色:</font> 表示虚拟机内存** <br>");
             builder.AppendLine();
         }
         builder.Append(FromatToTable(settings, states));
@@ -230,7 +236,11 @@ public static class MarkdownUtil
                 builder.Append(FormatDuration(data.Duration));
                 if (settings.CheckMemory)
                 {
-                    builder.AppendFormat("<br>{0} / {1}", FormatMemorySize(data.MonoMemory), FormatMemorySize(data.NativeMemory));
+                    builder.AppendFormat(
+                        "<br><font color=\"red\">{0}</font> / <font color=\"blue\">{1}</font> / <font color=\"green\">{2}</font>",
+                        FormatMemorySize(data.MonoMemory),
+                        FormatMemorySize(data.NativeMemory),
+                        FormatMemorySize(data.EnvMemory));
                 }
                 if (hasAnyResult)
                 {

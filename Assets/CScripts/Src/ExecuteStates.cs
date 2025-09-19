@@ -17,6 +17,7 @@ public struct ExecuteData
     public object Result;
     public long MonoMemory;
     public long NativeMemory;
+    public long EnvMemory;
 
     public static readonly ExecuteData Error = new ExecuteData()
     {
@@ -24,5 +25,6 @@ public struct ExecuteData
         Result = null,
         MonoMemory = -1,
         NativeMemory = -1,
+        EnvMemory = -1,
     };
 }
